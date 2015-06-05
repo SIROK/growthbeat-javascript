@@ -2,7 +2,6 @@ module GrowthAnalytics {
 
     export class ClientEvent {
 
-        private id:string;
         private clientId:string;
         private eventId:string;
         // FIXME data type
@@ -14,7 +13,6 @@ module GrowthAnalytics {
             if (data == undefined)
                 return;
 
-            this.id = data.id;
             this.clientId = data.clientId;
             this.eventId = data.eventId;
             this.properties = data.properties;
@@ -23,8 +21,9 @@ module GrowthAnalytics {
 
         }
 
-        public static create(clientId:string, eventId:string, properties:any, credentialId:string, success:(client:ClientEvent)=>void, failure:(error:any)=>void):void {
+        public static create(clientId:string, eventId:string, properties:any, credentialId:string, success:(clientEvent:ClientEvent)=>void, failure:(error:any)=>void):void {
 
+            // FIXME if value is null
             // FIXME merge GrowthbeatCore
             nanoajax.ajax({
                 url: 'https://api.analytics.growthbeat.com/1/clients/',
@@ -39,14 +38,6 @@ module GrowthAnalytics {
                 success(new ClientEvent(JSON.parse(responseText)));
             });
 
-        }
-
-        public getId():string {
-            return this.id;
-        }
-
-        public setId(id:string):void {
-            this.id = id;
         }
 
         public getClientId():string {
