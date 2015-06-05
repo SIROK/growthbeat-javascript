@@ -1,0 +1,17 @@
+{
+  "name": "growthbeat-javascript",
+  "version": "0.0.0",
+  "authors": "SIROK, Ink.",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "npm-debug.log",
+    "tsconfig.json"
+  ],
+  "dependencies": {
+    "nanoajax": "git@github.com:yanatan16/nanoajax.git"
+  }
+}

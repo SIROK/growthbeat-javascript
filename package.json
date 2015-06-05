@@ -1,0 +1,21 @@
+{
+  "name": "growthbeat-javascript",
+  "version": "0.1.0",
+  "description": "Growthbeat SDK for JavaScript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SIROK/growthbeat-javascript"
+  },
+  "author": "SIROK, Inc.",
+  "dependencies": {
+    "grunt": "^0.4.5"
+  },
+  "devDependencies": {
+    "grunt-contrib-connect": "^0.10.1",
+    "grunt-contrib-uglify": "^0.9.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-typescript": "^0.6.1",
+    "load-grunt-tasks": "^3.1.0",
+    "typescript": "^1.4.1"
+  }
+}
