@@ -42,34 +42,25 @@ module GrowthAnalytics {
             // TODO setBasicTags
         }
 
-        public track(name:string):void {
-            this.track(GrowthAnalytics.CUSTOM_NAMESPACE, name, null, null);
-        }
+        public track(trackParams:TrackParams):void {
 
-        public track(name:string, properties:any):void {
-            this.track(GrowthAnalytics.CUSTOM_NAMESPACE, name, properties, null);
-        }
+            if (trackParams.namespace == undefined)
+                trackParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
 
-        public track(name:string, option:TrackOption):void {
-            this.track(GrowthAnalytics.CUSTOM_NAMESPACE, name, null, option);
-        }
-
-        public track(namespace:string, name:string, properties:any, option:TrackOption):void {
-
-            var eventId:string = this.generateEventId(namespace, name);
+            var eventId:string = this.generateEventId(trackParams.namespace, name);
 
             // FIXME ClientEvent.load
-            if (option == TrackOption.ONCE) {
+            if (trackParams.option == TrackOption.ONCE) {
                 // FIXME if clientEvent exists.
             }
 
-            if (option == TrackOption.COUNTER) {
+            if (trackParams.option == TrackOption.COUNTER) {
                 // FIXME if clientEvents exists.
             }
 
             // FIXME merge GrowthbeatCore
             var clientId:string = 'xxxxx';
-            ClientEvent.create(clientId, eventId, properties, this.credentialId, (clientEvent:ClientEvent) => {
+            ClientEvent.create(clientId, eventId, trackParams.properties, this.credentialId, (clientEvent:ClientEvent) => {
                 // FIXME clientEvent Save
             }, () => {
                 // FIXME errorMessage.
@@ -78,21 +69,16 @@ module GrowthAnalytics {
 
         }
 
-        public tag(name:string):void {
-            this.tag(GrowthAnalytics.CUSTOM_NAMESPACE, name, null);
-        }
+        public tag(tagParams:TagParams):void {
 
-        public tag(name:string, value:string):void {
-            this.tag(GrowthAnalytics.CUSTOM_NAMESPACE, name, value);
-        }
+            if (tagParams.namespace == undefined)
+                tagParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
 
-        public tag(namespace:string, name:string, value:string):void {
-
-            var tagId:string = this.generateTagId(namespace, name);
+            var tagId:string = this.generateTagId(tagParams.namespace, name);
 
             // FIXME merge GrowthbeatCore
             var clientId:string = 'xxxxx';
-            ClientTag.create(clientId, tagId, value, this.credentialId, (clientTag:ClientTag) => {
+            ClientTag.create(clientId, tagId, tagParams.value, this.credentialId, (clientTag:ClientTag) => {
                 // FIXME clientTag Save
             }, () => {
                 // FIXME errorMessage.
@@ -121,6 +107,19 @@ module GrowthAnalytics {
 
     export enum TrackOption {
         ONCE, COUNTER
+    }
+
+    export interface TrackParams {
+        namespace?:string;
+        name:string;
+        properties?:any;
+        option?:TrackOption;
+    }
+
+    export interface TagParams {
+        namespace?:string;
+        name:string;
+        value?:string;
     }
 
 }
