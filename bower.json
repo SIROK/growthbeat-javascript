@@ -12,6 +12,7 @@
     "tsconfig.json"
   ],
   "dependencies": {
-    "nanoajax": "git@github.com:yanatan16/nanoajax.git"
+    "t.js": "https://github.com/jasonmoo/t.js.git",
+    "nanoajax": "https://github.com/yanatan16/nanoajax.git"
   }
 }

@@ -1,0 +1,35 @@
+<div class="{{=_closeElClass}} growthmessage-dialog">
+    <div class="growthmessage-dialog__inner">
+        <div class="{{=_closeElClass}} growthmessage-dialog__margin-left"></div>
+        <div class="{{=_closeElClass}} growthmessage-dialog__contents">
+            <div class="growthmessage-dialog-image">
+                {{_screenIsUrlType}}
+                    <a href="{{=_screen.intent.url}}" class="growthmessage-dialog-image__bg">
+                        <img src="{{=picture.url}}" class="{{=_linkBtnClass}}">
+                    </a>
+                {{:_screenIsUrlType}}
+                    <div class="growthmessage-dialog-image__bg">
+                        <img src="{{=picture.url}}" class="{{_screen}}{{=_closeBtnClass}}{{/_screen}}">
+                    </div>
+                {{/_screenIsUrlType}}
+                <div class="growthmessage-dialog-image__buttons">
+                    {{@buttons}}
+                        {{_val._isUrlType}}
+                            <a href="{{=_val.intent.url}}" class="growthmessage-dialog-image__button">
+                                <img src="{{=_val.picture.url}}" class="{{=_linkBtnClass}}">
+                            </a>
+                        {{:_val._isUrlType}}
+                            <div class="growthmessage-dialog-image__button">
+                                <img src="{{=_val.picture.url}}" class="{{=_closeBtnClass}}">
+                            </div>
+                        {{/_val._isUrlType}}
+                    {{/@buttons}}
+                </div>
+                {{_close}}
+                    <img src="{{=_close.picture.url}}" class="{{=_closeBtnClass}} growthmessage-dialog__button-close">
+                {{/_close}}
+            </div>
+        </div>
+        <div class="{{=_closeElClass}} growthmessage-dialog__margin-right"></div>
+    </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="growthmessage-dialog">
+    <div class="growthmessage-dialog__inner">
+        <div class="growthmessage-dialog__margin-left"></div>
+        <div class="growthmessage-dialog__contents">
+            <div class="growthmessage-dialog-text">
+                <div class="growthmessage-dialog-text__title">
+                    {{=caption}}
+                </div>
+                <div class="growthmessage-dialog-text__body">
+                    {{=text}}
+                </div>
+                <div class="growthmessage-dialog-text__buttons">
+                    {{@buttons}}
+                        {{_val._isUrlType}}
+                            <a href="{{=_val.intent.url}}" class="{{=_linkBtnClass}} growthmessage-dialog-text__button">
+                                {{=_val.label}}
+                            </a>
+                        {{:_val._isUrlType}}
+                            <div class="{{=_closeBtnClass}} growthmessage-dialog-text__button">
+                                {{=_val.label}}
+                            </div>
+                        {{/_val._isUrlType}}
+                    {{/@buttons}}
+                </div>
+            </div>
+        </div>
+        <div class="growthmessage-dialog__margin-right"></div>
+    </div>
+</div>
