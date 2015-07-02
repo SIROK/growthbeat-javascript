@@ -86,6 +86,7 @@ var GrowthAnalytics = (function () {
 module.exports = GrowthAnalytics;
 
 },{"../../growthbeat-core/ts/growthbeat-core":4,"./model/client-event":2,"./model/client-tag":3}],2:[function(require,module,exports){
+var nanoajax = require('nanoajax');
 var ClientEvent = (function () {
     function ClientEvent(data) {
         if (data == undefined)
@@ -99,18 +100,15 @@ var ClientEvent = (function () {
     ClientEvent.create = function (clientId, eventId, properties, credentialId, success, failure) {
         // FIXME if value is null
         // FIXME merge GrowthbeatCore
-        //nanoajax.ajax({
-        //    url: 'https://api.analytics.growthbeat.com/1/clients/',
-        //    method: 'POST',
-        //    body: 'clientId=' + clientId
-        //    + '&eventId=' + eventId
-        //    + '&properties=' + properties
-        //    + '&credentialId=' + credentialId
-        //}, (code:number, responseText:string)=> {
-        //    if (code !== 200)
-        //        failure('failure');
-        //    success(new ClientEvent(JSON.parse(responseText)));
-        //});
+        nanoajax.ajax({
+            url: 'https://api.analytics.growthbeat.com/1/clients/',
+            method: 'POST',
+            body: 'clientId=' + clientId + '&eventId=' + eventId + '&properties=' + properties + '&credentialId=' + credentialId
+        }, function (code, responseText) {
+            if (code !== 200)
+                failure('failure');
+            success(new ClientEvent(JSON.parse(responseText)));
+        });
     };
     ClientEvent.prototype.getClientId = function () {
         return this.clientId;
@@ -140,7 +138,8 @@ var ClientEvent = (function () {
 })();
 module.exports = ClientEvent;
 
-},{}],3:[function(require,module,exports){
+},{"nanoajax":7}],3:[function(require,module,exports){
+var nanoajax = require('nanoajax');
 var ClientTag = (function () {
     function ClientTag(data) {
         if (data == undefined)
@@ -154,18 +153,15 @@ var ClientTag = (function () {
     ClientTag.create = function (clientId, tagId, value, credentialId, success, failure) {
         // FIXME if value is null
         // FIXME merge GrowthbeatCore
-        //nanoajax.ajax({
-        //    url: 'https://api.analytics.growthbeat.com/1/clients/',
-        //    method: 'POST',
-        //    body: 'clientId=' + clientId
-        //    + '&tagId=' + tagId
-        //    + '&value=' + value
-        //    + '&credentialId=' + credentialId
-        //}, (code:number, responseText:string)=> {
-        //    if (code !== 200)
-        //        failure('failure');
-        //    success(new ClientTag(JSON.parse(responseText)));
-        //});
+        nanoajax.ajax({
+            url: 'https://api.analytics.growthbeat.com/1/clients/',
+            method: 'POST',
+            body: 'clientId=' + clientId + '&tagId=' + tagId + '&value=' + value + '&credentialId=' + credentialId
+        }, function (code, responseText) {
+            if (code !== 200)
+                failure('failure');
+            success(new ClientTag(JSON.parse(responseText)));
+        });
     };
     ClientTag.prototype.getClientId = function () {
         return this.clientId;
@@ -195,7 +191,7 @@ var ClientTag = (function () {
 })();
 module.exports = ClientTag;
 
-},{}],4:[function(require,module,exports){
+},{"nanoajax":7}],4:[function(require,module,exports){
 var GrowthbeatCore = (function () {
     function GrowthbeatCore() {
         this._initialized = false;
@@ -260,11 +256,61 @@ var Growthbeat = (function () {
 module.exports = Growthbeat;
 
 },{"../../growthanalytics/ts/index":1,"../../growthbeat-core/ts/growthbeat-core":4}],6:[function(require,module,exports){
+///<reference path='../local_typings/nanoajax.d.ts' />
 var Growthbeat = require('./growthbeat/ts/growthbeat');
 var GrowthbeatCore = require('./growthbeat-core/ts/growthbeat-core');
+var GrowthbeatAnalytics = require('./growthanalytics/ts/index');
 if (window) {
     window['Growthbeat'] = Growthbeat;
     window['GrowthbeatCore'] = GrowthbeatCore;
+    window['GrowthbeatAnalytics'] = GrowthbeatAnalytics;
 }
 
-},{"./growthbeat-core/ts/growthbeat-core":4,"./growthbeat/ts/growthbeat":5}]},{},[6]);
+},{"./growthanalytics/ts/index":1,"./growthbeat-core/ts/growthbeat-core":4,"./growthbeat/ts/growthbeat":5}],7:[function(require,module,exports){
+(function (global){
+exports.ajax = function (params, callback) {
+  if (typeof params == 'string') params = {url: params}
+  var headers = params.headers || {}
+    , body = params.body
+    , method = params.method || (body ? 'POST' : 'GET')
+    , withCredentials = params.withCredentials || false
+
+  var req = getRequest()
+
+  req.onreadystatechange = function () {
+    if (req.readyState == 4)
+      callback(req.status, req.responseText, req)
+  }
+
+  if (body) {
+    setDefault(headers, 'X-Requested-With', 'XMLHttpRequest')
+    setDefault(headers, 'Content-Type', 'application/x-www-form-urlencoded')
+  }
+
+  req.open(method, params.url, true)
+
+  // has no effect in IE
+  // has no effect for same-origin requests
+  // has no effect in CORS if user has disabled 3rd party cookies
+  req.withCredentials = withCredentials
+
+  for (var field in headers)
+    req.setRequestHeader(field, headers[field])
+
+  req.send(body)
+}
+
+function getRequest() {
+  if (global.XMLHttpRequest)
+    return new global.XMLHttpRequest;
+  else
+    try { return new global.ActiveXObject("MSXML2.XMLHTTP.3.0"); } catch(e) {}
+  throw new Error('no xmlhttp request able to be created')
+}
+
+function setDefault(obj, key, value) {
+  obj[key] = obj[key] || value
+}
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}]},{},[6]);

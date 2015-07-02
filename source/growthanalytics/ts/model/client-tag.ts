@@ -1,3 +1,5 @@
+import nanoajax = require('nanoajax');
+
 class ClientTag {
 
     private clientId:string;
@@ -23,18 +25,18 @@ class ClientTag {
 
         // FIXME if value is null
         // FIXME merge GrowthbeatCore
-        //nanoajax.ajax({
-        //    url: 'https://api.analytics.growthbeat.com/1/clients/',
-        //    method: 'POST',
-        //    body: 'clientId=' + clientId
-        //    + '&tagId=' + tagId
-        //    + '&value=' + value
-        //    + '&credentialId=' + credentialId
-        //}, (code:number, responseText:string)=> {
-        //    if (code !== 200)
-        //        failure('failure');
-        //    success(new ClientTag(JSON.parse(responseText)));
-        //});
+        nanoajax.ajax({
+            url: 'https://api.analytics.growthbeat.com/1/clients/',
+            method: 'POST',
+            body: 'clientId=' + clientId
+            + '&tagId=' + tagId
+            + '&value=' + value
+            + '&credentialId=' + credentialId
+        }, (code:number, responseText:string)=> {
+            if (code !== 200)
+                failure('failure');
+            success(new ClientTag(JSON.parse(responseText)));
+        });
 
     }
 
