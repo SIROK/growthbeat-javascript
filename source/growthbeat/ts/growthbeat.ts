@@ -1,7 +1,9 @@
 import GrowthbeatCore = require('../../growthbeat-core/ts/growthbeat-core');
+import GrowthbeatAnalytics = require('../../growthanalytics/ts/index');
 
 class Growthbeat {
     private static _instance:Growthbeat = null;
+    private _initialized:boolean = false;
 
     constructor() {
         if (Growthbeat._instance) {
@@ -18,9 +20,13 @@ class Growthbeat {
     }
 
     initialize(applicationId:string, credentialId:string) {
+        if (this._initialized) return;
+
         console.log('initialized: Growthbeat');
+        this._initialized = true;
 
         GrowthbeatCore.getInstance().initialize('applicationId', 'credentialId');
+        GrowthbeatAnalytics.getInstance().initialize('applicationId', 'credentialId');
         // TODO: initialze GrowthAnalytics
         // TODO: initialze GrowthMessage
     }

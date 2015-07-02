@@ -1,5 +1,6 @@
 class GrowthbeatCore {
     private static _instance:GrowthbeatCore = null;
+    private _initialized:boolean = false;
 
     constructor() {
         if (GrowthbeatCore._instance) {
@@ -16,7 +17,10 @@ class GrowthbeatCore {
     }
 
     initialize(applicationId:string, credentialId:string) {
+        if (this._initialized) return;
+
         console.log('initialized: GrowthbeatCore');
+        this._initialized = true;
     }
 }
 
