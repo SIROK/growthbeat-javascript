@@ -8,7 +8,9 @@
 <body>
 <script src="../growthbeat.js"></script>
 <script>
-    if(Growthbeat){Growthbeat.Growthbeat = new Growthbeat.Growthbeat()}
+    if (Growthbeat) {
+        Growthbeat.getInstance().initialize();
+    }
 </script>
 </body>
 </html>
