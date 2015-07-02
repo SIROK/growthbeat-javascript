@@ -1,4 +1,4 @@
-import GrowthbeatCore = require('../../growthbeat-core/ts/growthbeat-core');
+import GrowthbeatCore = require('../../growthbeat-core/ts/index');
 import GrowthbeatAnalytics = require('../../growthanalytics/ts/index');
 
 class Growthbeat {

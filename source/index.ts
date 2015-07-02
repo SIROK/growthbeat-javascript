@@ -1,7 +1,7 @@
 ///<reference path='../local_typings/nanoajax.d.ts' />
 
-import Growthbeat = require('./growthbeat/ts/growthbeat');
-import GrowthbeatCore = require('./growthbeat-core/ts/growthbeat-core');
+import Growthbeat = require('./growthbeat/ts/index');
+import GrowthbeatCore = require('./growthbeat-core/ts/index');
 import GrowthbeatAnalytics = require('./growthanalytics/ts/index');
 
 if (window) {

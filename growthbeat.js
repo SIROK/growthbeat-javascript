@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GrowthbeatCore = require('../../growthbeat-core/ts/growthbeat-core');
+var GrowthbeatCore = require('../../growthbeat-core/ts/index');
 var ClientEvent = require('./model/client-event');
 var ClientTag = require('./model/client-tag');
 var TrackOption;
@@ -85,7 +85,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"../../growthbeat-core/ts/growthbeat-core":4,"./model/client-event":2,"./model/client-tag":3}],2:[function(require,module,exports){
+},{"../../growthbeat-core/ts/index":4,"./model/client-event":2,"./model/client-tag":3}],2:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientEvent = (function () {
     function ClientEvent(data) {
@@ -218,7 +218,7 @@ var GrowthbeatCore = (function () {
 module.exports = GrowthbeatCore;
 
 },{}],5:[function(require,module,exports){
-var GrowthbeatCore = require('../../growthbeat-core/ts/growthbeat-core');
+var GrowthbeatCore = require('../../growthbeat-core/ts/index');
 var GrowthbeatAnalytics = require('../../growthanalytics/ts/index');
 var Growthbeat = (function () {
     function Growthbeat() {
@@ -255,10 +255,10 @@ var Growthbeat = (function () {
 })();
 module.exports = Growthbeat;
 
-},{"../../growthanalytics/ts/index":1,"../../growthbeat-core/ts/growthbeat-core":4}],6:[function(require,module,exports){
+},{"../../growthanalytics/ts/index":1,"../../growthbeat-core/ts/index":4}],6:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
-var Growthbeat = require('./growthbeat/ts/growthbeat');
-var GrowthbeatCore = require('./growthbeat-core/ts/growthbeat-core');
+var Growthbeat = require('./growthbeat/ts/index');
+var GrowthbeatCore = require('./growthbeat-core/ts/index');
 var GrowthbeatAnalytics = require('./growthanalytics/ts/index');
 if (window) {
     window['Growthbeat'] = Growthbeat;
@@ -266,7 +266,7 @@ if (window) {
     window['GrowthbeatAnalytics'] = GrowthbeatAnalytics;
 }
 
-},{"./growthanalytics/ts/index":1,"./growthbeat-core/ts/growthbeat-core":4,"./growthbeat/ts/growthbeat":5}],7:[function(require,module,exports){
+},{"./growthanalytics/ts/index":1,"./growthbeat-core/ts/index":4,"./growthbeat/ts/index":5}],7:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}

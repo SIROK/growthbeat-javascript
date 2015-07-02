@@ -1,4 +1,4 @@
-import GrowthbeatCore = require('../../growthbeat-core/ts/growthbeat-core');
+import GrowthbeatCore = require('../../growthbeat-core/ts/index');
 import ClientEvent = require('./model/client-event');
 import ClientTag = require('./model/client-tag');
 
