@@ -1,8 +1,12 @@
+# InteliJ Files
+*.iml
+.idea/
+
 npm-debug.log
 node_modules
 bower_components
 tsconfig.json
 
-# InteliJ Files
-*.iml
-.idea/
+lib/*
+
+!.gitkeep

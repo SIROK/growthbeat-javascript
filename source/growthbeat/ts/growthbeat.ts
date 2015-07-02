@@ -1,3 +1,5 @@
+import GrowthbeatCore = require('../../growthbeat-core/ts/growthbeat-core');
+
 class Growthbeat {
     private static _instance:Growthbeat = null;
 
@@ -16,8 +18,9 @@ class Growthbeat {
     }
 
     initialize(applicationId:string, credentialId:string) {
-        console.log('initialized');
-        // TODO: initialze GrowthbeatCore
+        console.log('initialized: Growthbeat');
+
+        GrowthbeatCore.getInstance().initialize('applicationId', 'credentialId');
         // TODO: initialze GrowthAnalytics
         // TODO: initialze GrowthMessage
     }
