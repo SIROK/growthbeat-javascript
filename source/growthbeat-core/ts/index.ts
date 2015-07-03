@@ -23,11 +23,17 @@ class GrowthbeatCore {
         return GrowthbeatCore._instance;
     }
 
-    initialize(applicationId:string, credentialId:string) {
-        if (this._initialized) return;
+    initialize(applicationId:string, credentialId:string, callback:()=>void) {
+        if (this._initialized) {
+            callback();
+            return;
+        }
+
+        // TODO: authentication
 
         console.log('initialized: GrowthbeatCore');
         this._initialized = true;
+        callback();
     }
 
     getHttpClient():GrowthbeatHttpClient {

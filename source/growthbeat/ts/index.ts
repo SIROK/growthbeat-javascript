@@ -20,15 +20,18 @@ class Growthbeat {
         return Growthbeat._instance;
     }
 
-    initialize(applicationId:string, credentialId:string) {
+    initialize(applicationId:string, credentialId:string, callback:()=>void) {
         if (this._initialized) return;
 
-        console.log('initialized: Growthbeat');
-        this._initialized = true;
 
-        GrowthbeatCore.getInstance().initialize('applicationId', 'credentialId');
-        GrowthbeatAnalytics.getInstance().initialize('applicationId', 'credentialId');
-        GrowthbeatMessage.getInstance().initialize('applicationId', 'credentialId');
+        GrowthbeatCore.getInstance().initialize(applicationId, credentialId, () => {
+            console.log('initialized: Growthbeat');
+            this._initialized = true;
+
+            GrowthbeatAnalytics.getInstance().initialize(applicationId, credentialId);
+            GrowthbeatMessage.getInstance().initialize(applicationId, credentialId);
+            callback();
+        });
     }
 
     start() {

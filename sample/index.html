@@ -9,7 +9,9 @@
 <script src="../growthbeat.js"></script>
 <script>
     if (Growthbeat) {
-        Growthbeat.getInstance().initialize();
+        Growthbeat.getInstance().initialize('applicationId', 'credentialId', function() {
+            console.log('initialized: Growthbeat JS SDK');
+        });
     }
 </script>
 </body>

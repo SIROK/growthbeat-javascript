@@ -51,7 +51,7 @@ class GrowthAnalytics {
         console.log('initialized: GrowthAnalytics');
         this._initialized = true;
 
-        GrowthbeatCore.getInstance().initialize(applicationId, credentialId);
+        //GrowthbeatCore.getInstance().initialize(applicationId, credentialId);
 
         this.setBasicTags();
     }

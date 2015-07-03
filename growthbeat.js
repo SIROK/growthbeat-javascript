@@ -1,5 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var GrowthbeatCore = require('../../growthbeat-core/ts/index');
 var ClientEvent = require('./model/client-event');
 var ClientTag = require('./model/client-tag');
 var TrackOption;
@@ -28,7 +27,7 @@ var GrowthAnalytics = (function () {
             return;
         console.log('initialized: GrowthAnalytics');
         this._initialized = true;
-        GrowthbeatCore.getInstance().initialize(applicationId, credentialId);
+        //GrowthbeatCore.getInstance().initialize(applicationId, credentialId);
         this.setBasicTags();
     };
     GrowthAnalytics.prototype.setBasicTags = function () {
@@ -85,7 +84,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"../../growthbeat-core/ts/index":5,"./model/client-event":2,"./model/client-tag":3}],2:[function(require,module,exports){
+},{"./model/client-event":2,"./model/client-tag":3}],2:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientEvent = (function () {
     function ClientEvent(data) {
@@ -260,11 +259,15 @@ var GrowthbeatCore = (function () {
         }
         return GrowthbeatCore._instance;
     };
-    GrowthbeatCore.prototype.initialize = function (applicationId, credentialId) {
-        if (this._initialized)
+    GrowthbeatCore.prototype.initialize = function (applicationId, credentialId, callback) {
+        if (this._initialized) {
+            callback();
             return;
+        }
+        // TODO: authentication
         console.log('initialized: GrowthbeatCore');
         this._initialized = true;
+        callback();
     };
     GrowthbeatCore.prototype.getHttpClient = function () {
         return this.httpClient;
@@ -292,14 +295,17 @@ var Growthbeat = (function () {
         }
         return Growthbeat._instance;
     };
-    Growthbeat.prototype.initialize = function (applicationId, credentialId) {
+    Growthbeat.prototype.initialize = function (applicationId, credentialId, callback) {
+        var _this = this;
         if (this._initialized)
             return;
-        console.log('initialized: Growthbeat');
-        this._initialized = true;
-        GrowthbeatCore.getInstance().initialize('applicationId', 'credentialId');
-        GrowthbeatAnalytics.getInstance().initialize('applicationId', 'credentialId');
-        GrowthbeatMessage.getInstance().initialize('applicationId', 'credentialId');
+        GrowthbeatCore.getInstance().initialize(applicationId, credentialId, function () {
+            console.log('initialized: Growthbeat');
+            _this._initialized = true;
+            GrowthbeatAnalytics.getInstance().initialize(applicationId, credentialId);
+            GrowthbeatMessage.getInstance().initialize(applicationId, credentialId);
+            callback();
+        });
     };
     Growthbeat.prototype.start = function () {
         // TODO: open GrowthAnalytics
