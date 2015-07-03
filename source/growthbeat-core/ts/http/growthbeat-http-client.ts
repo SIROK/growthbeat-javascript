@@ -1,9 +1,9 @@
 import nanoajax = require('nanoajax');
 
 interface AjaxParams {
-    method:string,
-    url:string,
-    body?:string
+    method:string;
+    url:string;
+    body?:string;
 }
 
 class GrowthbeatHttpClient {
@@ -28,11 +28,11 @@ class GrowthbeatHttpClient {
     }
 
     request(method:string, api:string, params:any, success:Function, error:Function) {
-        let body = Object.keys(params).map((key)=> {
+        var body = Object.keys(params).map((key)=> {
             return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
         }).join('&');
 
-        let ajaxParams = <AjaxParams>{
+        var ajaxParams = <AjaxParams>{
             method
         };
 
@@ -47,10 +47,10 @@ class GrowthbeatHttpClient {
 
         nanoajax.ajax(ajaxParams, (code:number, responseText:string)=> {
             if (code === 200) {
-                let data = JSON.parse(responseText);
+                var data = JSON.parse(responseText);
                 success(data, code);
             } else {
-                let err = {};
+                var err = {};
                 error(err, code);
             }
         });

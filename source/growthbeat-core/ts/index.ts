@@ -1,6 +1,13 @@
+import GrowthbeatHttpClient = require('./http/growthbeat-http-client');
+
+var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
+var HTTP_CLIENT_TIMEOUT = 60 * 1000;
+
 class GrowthbeatCore {
     private static _instance:GrowthbeatCore = null;
     private _initialized:boolean = false;
+
+    private httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
     constructor() {
         if (GrowthbeatCore._instance) {
@@ -21,6 +28,10 @@ class GrowthbeatCore {
 
         console.log('initialized: GrowthbeatCore');
         this._initialized = true;
+    }
+
+    getHttpClient():GrowthbeatHttpClient {
+        return this.httpClient;
     }
 }
 
