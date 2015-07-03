@@ -21,10 +21,10 @@ class GrowthbeatHttpClient {
         return this.request('DELETE', api, params, success, error);
     }
 
-    request(method:string, api:string, params:any, success:Function, error:Function) {
-        var bodyObj = (params.body == null) ? {} : params.body;
-        var body = Object.keys(bodyObj).map((key)=> {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(bodyObj[key]);
+    request(method:string, api:string, option:any, success:Function, error:Function) {
+        var paramsObj = (option.params == null) ? {} : option.params;
+        var params = Object.keys(paramsObj).map((key)=> {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
         }).join('&');
 
         var ajaxParams:{method:string; url:string; body?:string; withCredentials?:boolean} = {
@@ -34,9 +34,9 @@ class GrowthbeatHttpClient {
         };
 
         if (method === 'GET') {
-            ajaxParams.url = `${ajaxParams}?${body}`;
+            ajaxParams.url = `${ajaxParams}?${params}`;
         } else {
-            ajaxParams.body = body;
+            ajaxParams.body = params;
         }
 
         // TODO: handle timeout

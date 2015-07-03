@@ -1,4 +1,5 @@
 import GrowthbeatHttpClient = require('./http/growthbeat-http-client');
+import Client = require('./model/client');
 
 var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
@@ -30,6 +31,29 @@ class GrowthbeatCore {
         }
 
         // TODO: authentication
+        var client = Client.create();
+        client.bind('created', () => {
+            console.log('created');
+        });
+
+        client.bind('error', () => {
+            console.log('error');
+        });
+
+        var opt = {
+            params: {
+                applicationId,
+                credentialId
+            }
+        };
+
+        this.httpClient.post('1/clients', opt,
+            (data, code) => {
+                client.trigger('created');
+            },
+            (err, code) => {
+                client.trigger('error');
+            });
 
         console.log('initialized: GrowthbeatCore');
         this._initialized = true;

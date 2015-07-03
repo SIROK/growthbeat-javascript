@@ -137,7 +137,7 @@ var ClientEvent = (function () {
 })();
 module.exports = ClientEvent;
 
-},{"nanoajax":9}],3:[function(require,module,exports){
+},{"nanoajax":11}],3:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientTag = (function () {
     function ClientTag(data) {
@@ -190,7 +190,7 @@ var ClientTag = (function () {
 })();
 module.exports = ClientTag;
 
-},{"nanoajax":9}],4:[function(require,module,exports){
+},{"nanoajax":11}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var GrowthbeatHttpClient = (function () {
     function GrowthbeatHttpClient(baseUrl, timeout) {
@@ -210,19 +210,21 @@ var GrowthbeatHttpClient = (function () {
     GrowthbeatHttpClient.prototype.delete = function (api, params, success, error) {
         return this.request('DELETE', api, params, success, error);
     };
-    GrowthbeatHttpClient.prototype.request = function (method, api, params, success, error) {
-        var body = Object.keys(params).map(function (key) {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+    GrowthbeatHttpClient.prototype.request = function (method, api, option, success, error) {
+        var paramsObj = (option.params == null) ? {} : option.params;
+        var params = Object.keys(paramsObj).map(function (key) {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
         }).join('&');
         var ajaxParams = {
-            method: method
+            method: method,
+            url: this.baseUrl + api,
+            withCredentials: true
         };
         if (method === 'GET') {
-            ajaxParams.url = "" + this.baseUrl + api + "?" + body;
+            ajaxParams.url = "" + ajaxParams + "?" + params;
         }
         else {
-            ajaxParams.url = "" + this.baseUrl + api;
-            ajaxParams.body = body;
+            ajaxParams.body = params;
         }
         // TODO: handle timeout
         nanoajax.ajax(ajaxParams, function (code, responseText) {
@@ -240,8 +242,9 @@ var GrowthbeatHttpClient = (function () {
 })();
 module.exports = GrowthbeatHttpClient;
 
-},{"nanoajax":9}],5:[function(require,module,exports){
+},{"nanoajax":11}],5:[function(require,module,exports){
 var GrowthbeatHttpClient = require('./http/growthbeat-http-client');
+var Client = require('./model/client');
 var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 var GrowthbeatCore = (function () {
@@ -265,6 +268,24 @@ var GrowthbeatCore = (function () {
             return;
         }
         // TODO: authentication
+        var client = Client.create();
+        client.bind('created', function () {
+            console.log('created');
+        });
+        client.bind('error', function () {
+            console.log('error');
+        });
+        var opt = {
+            params: {
+                applicationId: applicationId,
+                credentialId: credentialId
+            }
+        };
+        this.httpClient.post('1/clients', opt, function (data, code) {
+            client.trigger('created');
+        }, function (err, code) {
+            client.trigger('error');
+        });
         console.log('initialized: GrowthbeatCore');
         this._initialized = true;
         callback();
@@ -277,7 +298,33 @@ var GrowthbeatCore = (function () {
 })();
 module.exports = GrowthbeatCore;
 
-},{"./http/growthbeat-http-client":4}],6:[function(require,module,exports){
+},{"./http/growthbeat-http-client":4,"./model/client":6}],6:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var MicroEvent = require('microevent');
+var Client = (function (_super) {
+    __extends(Client, _super);
+    function Client() {
+        _super.call(this);
+    }
+    Client.load = function () {
+        return new Client();
+    };
+    Client.create = function () {
+        var client = new Client();
+        return client;
+    };
+    Client.findById = function () {
+    };
+    return Client;
+})(MicroEvent);
+module.exports = Client;
+
+},{"microevent":10}],7:[function(require,module,exports){
 var GrowthbeatCore = require('../../growthbeat-core/ts/index');
 var GrowthbeatAnalytics = require('../../growthanalytics/ts/index');
 var GrowthbeatMessage = require('../../growthmessage/ts/index');
@@ -318,7 +365,7 @@ var Growthbeat = (function () {
 })();
 module.exports = Growthbeat;
 
-},{"../../growthanalytics/ts/index":1,"../../growthbeat-core/ts/index":5,"../../growthmessage/ts/index":7}],7:[function(require,module,exports){
+},{"../../growthanalytics/ts/index":1,"../../growthbeat-core/ts/index":5,"../../growthmessage/ts/index":8}],8:[function(require,module,exports){
 var GrowthMessage = (function () {
     function GrowthMessage() {
         this._initialized = false;
@@ -344,8 +391,9 @@ var GrowthMessage = (function () {
 })();
 module.exports = GrowthMessage;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
+///<reference path='../local_typings/microevent.d.ts' />
 var Growthbeat = require('./growthbeat/ts/index');
 var GrowthbeatCore = require('./growthbeat-core/ts/index');
 var GrowthbeatAnalytics = require('./growthanalytics/ts/index');
@@ -357,7 +405,59 @@ if (window) {
     window['GrowthbeatMessage'] = GrowthbeatMessage;
 }
 
-},{"./growthanalytics/ts/index":1,"./growthbeat-core/ts/index":5,"./growthbeat/ts/index":6,"./growthmessage/ts/index":7}],9:[function(require,module,exports){
+},{"./growthanalytics/ts/index":1,"./growthbeat-core/ts/index":5,"./growthbeat/ts/index":7,"./growthmessage/ts/index":8}],10:[function(require,module,exports){
+/**
+ * MicroEvent - to make any js object an event emitter (server or browser)
+ * 
+ * - pure javascript - server compatible, browser compatible
+ * - dont rely on the browser doms
+ * - super simple - you get it immediatly, no mistery, no magic involved
+ *
+ * - create a MicroEventDebug with goodies to debug
+ *   - make it safer to use
+*/
+
+var MicroEvent	= function(){}
+MicroEvent.prototype	= {
+	bind	: function(event, fct){
+		this._events = this._events || {};
+		this._events[event] = this._events[event]	|| [];
+		this._events[event].push(fct);
+	},
+	unbind	: function(event, fct){
+		this._events = this._events || {};
+		if( event in this._events === false  )	return;
+		this._events[event].splice(this._events[event].indexOf(fct), 1);
+	},
+	trigger	: function(event /* , args... */){
+		this._events = this._events || {};
+		if( event in this._events === false  )	return;
+		for(var i = 0; i < this._events[event].length; i++){
+			this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1))
+		}
+	}
+};
+
+/**
+ * mixin will delegate all MicroEvent.js function in the destination object
+ *
+ * - require('MicroEvent').mixin(Foobar) will make Foobar able to use MicroEvent
+ *
+ * @param {Object} the object which will support MicroEvent
+*/
+MicroEvent.mixin	= function(destObject){
+	var props	= ['bind', 'unbind', 'trigger'];
+	for(var i = 0; i < props.length; i ++){
+		destObject.prototype[props[i]]	= MicroEvent.prototype[props[i]];
+	}
+}
+
+// export in common js
+if( typeof module !== "undefined" && ('exports' in module)){
+	module.exports	= MicroEvent
+}
+
+},{}],11:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}
@@ -404,4 +504,4 @@ function setDefault(obj, key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[8]);
+},{}]},{},[9]);
