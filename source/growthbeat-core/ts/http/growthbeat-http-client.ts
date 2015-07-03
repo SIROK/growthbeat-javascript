@@ -34,7 +34,7 @@ class GrowthbeatHttpClient {
         };
 
         if (method === 'GET') {
-            ajaxParams.url = `${ajaxParams}?${params}`;
+            ajaxParams.url = `${ajaxParams.url}?${params}`;
         } else {
             ajaxParams.body = params;
         }
@@ -50,6 +50,23 @@ class GrowthbeatHttpClient {
                 error(err, code);
             }
         });
+    }
+
+    jsonp(api:string, option:any, success:Function, error:Function) {
+        var paramsObj = (option.params == null) ? {} : option.params;
+        var params = Object.keys(paramsObj).map((key)=> {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
+        });
+        params.push('callback=jsonpCallback');
+        params.join('&');
+
+        var url = this.baseUrl + api + '?' + params;
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = url;
+        document.body.appendChild(script);
+
+        // TODO: handle timeout
     }
 }
 
