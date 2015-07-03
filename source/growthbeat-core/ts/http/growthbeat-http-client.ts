@@ -22,13 +22,15 @@ class GrowthbeatHttpClient {
     }
 
     request(method:string, api:string, params:any, success:Function, error:Function) {
-        var body = Object.keys(params).map((key)=> {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+        var bodyObj = (params.body == null) ? {} : params.body;
+        var body = Object.keys(bodyObj).map((key)=> {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(bodyObj[key]);
         }).join('&');
 
-        var ajaxParams:{method:string; url:string; body?:string;} = {
+        var ajaxParams:{method:string; url:string; body?:string; withCredentials?:boolean} = {
             method,
-            url: this.baseUrl + api
+            url: this.baseUrl + api,
+            withCredentials: true
         };
 
         if (method === 'GET') {
