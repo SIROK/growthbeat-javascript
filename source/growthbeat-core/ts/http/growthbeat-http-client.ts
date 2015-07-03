@@ -1,11 +1,5 @@
 import nanoajax = require('nanoajax');
 
-interface AjaxParams {
-    method:string;
-    url:string;
-    body?:string;
-}
-
 class GrowthbeatHttpClient {
     constructor(private baseUrl:string, private timeout:number = 0) {
 
@@ -32,14 +26,14 @@ class GrowthbeatHttpClient {
             return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
         }).join('&');
 
-        var ajaxParams = <AjaxParams>{
-            method
+        var ajaxParams:{method:string; url:string; body?:string;} = {
+            method,
+            url: this.baseUrl + api
         };
 
         if (method === 'GET') {
-            ajaxParams.url = `${this.baseUrl}${api}?${body}`;
+            ajaxParams.url = `${ajaxParams}?${body}`;
         } else {
-            ajaxParams.url = `${this.baseUrl}${api}`;
             ajaxParams.body = body;
         }
 
