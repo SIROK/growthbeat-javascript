@@ -1,6 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var ClientEvent = require('./model/client-event');
 var ClientTag = require('./model/client-tag');
+var Emitter = require('component-emitter');
 var TrackOption;
 (function (TrackOption) {
     TrackOption[TrackOption["ONCE"] = 0] = "ONCE";
@@ -10,6 +11,7 @@ var GrowthAnalytics = (function () {
     function GrowthAnalytics() {
         this.applicationId = null;
         this.credentialId = null;
+        this.emmiter = new Emitter();
         this._initialized = false;
         if (GrowthAnalytics._instance) {
             throw new Error('must use the getInstance');
@@ -76,6 +78,9 @@ var GrowthAnalytics = (function () {
     GrowthAnalytics.prototype.getCredentialId = function () {
         return this.credentialId;
     };
+    GrowthAnalytics.prototype.getEmitter = function () {
+        return this.emmiter;
+    };
     GrowthAnalytics.DEFAULT_BASE_URL = "https://analytics.growthbeat.com/";
     GrowthAnalytics.DEFAULT_NAMESPACE = 'Default';
     GrowthAnalytics.CUSTOM_NAMESPACE = 'Custom';
@@ -84,7 +89,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"./model/client-event":2,"./model/client-tag":3}],2:[function(require,module,exports){
+},{"./model/client-event":2,"./model/client-tag":3,"component-emitter":10}],2:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientEvent = (function () {
     function ClientEvent(data) {
@@ -399,8 +404,13 @@ var Growthbeat = (function () {
 module.exports = Growthbeat;
 
 },{"../growthanalytics/index":1,"../growthbeat-core/index":5,"../growthmessage/index":8}],8:[function(require,module,exports){
+var GrowthbeatHttpClient = require('../growthbeat-core/http/growthbeat-http-client');
+var GrowthAnalytics = require('../growthanalytics/index');
+var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
+var HTTP_CLIENT_TIMEOUT = 10 * 1000;
 var GrowthMessage = (function () {
     function GrowthMessage() {
+        this.httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
         this._initialized = false;
         if (GrowthMessage._instance) {
             throw new Error('must use the getInstance');
@@ -414,17 +424,27 @@ var GrowthMessage = (function () {
         return GrowthMessage._instance;
     };
     GrowthMessage.prototype.initialize = function (applicationId, credentialId) {
+        var _this = this;
         if (this._initialized)
             return;
+        GrowthAnalytics.getInstance().getEmitter().on('GrowthMessage', function (eventId) {
+            _this.recevieMessage(eventId);
+        });
         console.log('initialized: GrowthMessage');
         this._initialized = true;
+    };
+    GrowthMessage.prototype.recevieMessage = function (eventId) {
+        console.log('recevieMessage');
+    };
+    GrowthMessage.prototype.getHttpClient = function () {
+        return this.httpClient;
     };
     GrowthMessage._instance = null;
     return GrowthMessage;
 })();
 module.exports = GrowthMessage;
 
-},{}],9:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/http/growthbeat-http-client":4}],9:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
 var Growthbeat = require('./growthbeat/index');

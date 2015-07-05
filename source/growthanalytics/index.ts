@@ -1,6 +1,7 @@
 import GrowthbeatCore = require('../growthbeat-core/index');
 import ClientEvent = require('./model/client-event');
 import ClientTag = require('./model/client-tag');
+import Emitter = require('component-emitter');
 
 enum TrackOption {
     ONCE, COUNTER
@@ -27,6 +28,8 @@ class GrowthAnalytics {
 
     private applicationId:string = null;
     private credentialId:string = null;
+
+    private emmiter = new Emitter();
 
     private static _instance:GrowthAnalytics = null;
     private _initialized:boolean = false;
@@ -119,6 +122,10 @@ class GrowthAnalytics {
 
     getCredentialId():string {
         return this.credentialId;
+    }
+
+    getEmitter():Emitter {
+        return this.emmiter;
     }
 }
 
