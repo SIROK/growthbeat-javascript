@@ -1,47 +1,83 @@
 import nanoajax = require('nanoajax');
 
+interface Options {
+    params?:{key?: string;};
+    dataType?:string;
+    cors?:boolean;
+}
+
 class GrowthbeatHttpClient {
     constructor(private baseUrl:string, private timeout:number = 0) {
 
     }
 
-    get(api:string, params:any, success:Function, error:Function) {
-        return this.request('GET', api, params, success, error);
+    get(api:string, options:Options, success:Function, error:Function) {
+        return this._request('GET', api, options, success, error);
     }
 
-    post(api:string, params:any, success:Function, error:Function) {
-        return this.request('POST', api, params, success, error);
+    post(api:string, options:Options, success:Function, error:Function) {
+        return this._request('POST', api, options, success, error);
     }
 
-    put(api:string, params:any, success:Function, error:Function) {
-        return this.request('PUT', api, params, success, error);
+    put(api:string, options:Options, success:Function, error:Function) {
+        return this._request('PUT', api, options, success, error);
     }
 
-    delete(api:string, params:any, success:Function, error:Function) {
-        return this.request('DELETE', api, params, success, error);
+    delete(api:string, options:Options, success:Function, error:Function) {
+        return this._request('DELETE', api, options, success, error);
     }
 
-    request(method:string, api:string, option:any, success:Function, error:Function) {
-        var paramsObj = (option.params == null) ? {} : option.params;
-        var params = Object.keys(paramsObj).map((key)=> {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
-        }).join('&');
+    _request(method:string, api:string, options:Options, success:Function, error:Function) {
+        if (options.dataType === 'jsonp') {
+            this._requestByJsonp('GET', api, options, success, error);
+        } else {
+            this._requestByXhr(method, api, options, success, error);
+        }
+    }
 
-        var ajaxParams:{method:string; url:string; body?:string; withCredentials?:boolean} = {
+    _requestByJsonp(method:string, api:string, options:Options, success:Function, error:Function) {
+        var params = this._makeParamsArray(options.params);
+        var jsonpCallbackName = 'jsonpCallback';
+
+        params = params.concat('callback=' + jsonpCallbackName);
+
+        var url = this.baseUrl + api + '?' + params.join('&');
+
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = url;
+
+        window[jsonpCallbackName] = (data) => {
+            delete window[jsonpCallbackName];
+            success(data, 200);
+        };
+
+        script.onerror = (err) => {
+            console.log('script error', err);
+            error();
+        };
+
+        document.body.appendChild(script);
+    }
+
+    _requestByXhr(method:string, api:string, options:Options, success:Function, error:Function) {
+        var params = this._makeParamsArray(options.params);
+
+        var nanoParams:{method:string; url:string; body?:string; withCredentials?:boolean} = {
             method,
             url: this.baseUrl + api,
-            withCredentials: true
+            withCredentials: (options.cors === true)
         };
 
         if (method === 'GET') {
-            ajaxParams.url = `${ajaxParams.url}?${params}`;
+            nanoParams.url = nanoParams.url + '?' + params.join('&');
         } else {
-            ajaxParams.body = params;
+            nanoParams.body = params.join('&');
         }
 
         // TODO: handle timeout
 
-        nanoajax.ajax(ajaxParams, (code:number, responseText:string)=> {
+        nanoajax.ajax(nanoParams, (code:number, responseText:string)=> {
             if (code === 200) {
                 var data = JSON.parse(responseText);
                 success(data, code);
@@ -52,21 +88,12 @@ class GrowthbeatHttpClient {
         });
     }
 
-    jsonp(api:string, option:any, success:Function, error:Function) {
-        var paramsObj = (option.params == null) ? {} : option.params;
+    _makeParamsArray(obj: {key?: string;}):string[] {
+        var paramsObj = (obj == null) ? {} : obj;
         var params = Object.keys(paramsObj).map((key)=> {
             return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
         });
-        params.push('callback=jsonpCallback');
-        params.join('&');
-
-        var url = this.baseUrl + api + '?' + params;
-        var script = document.createElement('script');
-        script.async = true;
-        script.src = url;
-        document.body.appendChild(script);
-
-        // TODO: handle timeout
+        return params;
     }
 }
 
