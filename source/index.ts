@@ -1,5 +1,5 @@
 ///<reference path='../local_typings/nanoajax.d.ts' />
-///<reference path='../local_typings/microevent.d.ts' />
+///<reference path='../local_typings/component-emitter.d.ts' />
 
 import Growthbeat = require('./growthbeat/ts/index');
 import GrowthbeatCore = require('./growthbeat-core/ts/index');

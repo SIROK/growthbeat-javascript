@@ -32,11 +32,11 @@ class GrowthbeatCore {
 
         // TODO: authentication
         var client = Client.create();
-        client.bind('created', () => {
+        client.on('created', () => {
             console.log('created');
         });
 
-        client.bind('error', () => {
+        client.on('error', () => {
             console.log('error');
         });
 
@@ -44,15 +44,18 @@ class GrowthbeatCore {
             params: {
                 applicationId,
                 credentialId
-            }
+            },
+            dataType: 'jsonp'
+            //cors: true
         };
 
-        this.httpClient.post('1/clients', opt,
+        this.httpClient.get('1/clients', opt,
             (data, code) => {
-                client.trigger('created');
+                console.log(data, code);
+                client.emit('created');
             },
             (err, code) => {
-                client.trigger('error');
+                client.emit('error');
             });
 
         console.log('initialized: GrowthbeatCore');

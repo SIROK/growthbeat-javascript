@@ -1,6 +1,6 @@
-import MicroEvent = require('microevent');
+import Emitter = require('component-emitter');
 
-class Client extends MicroEvent {
+class Client extends Emitter {
     constructor() {
         super();
     }
