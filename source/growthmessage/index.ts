@@ -1,5 +1,6 @@
 import GrowthbeatHttpClient = require('../growthbeat-core/http/growthbeat-http-client');
 import GrowthAnalytics = require('../growthanalytics/index');
+import MessageView = require('./view/message-view');
 
 var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 10 * 1000;
@@ -37,6 +38,11 @@ class GrowthMessage {
 
     recevieMessage(eventId:string) {
         console.log('recevieMessage');
+        this.openMessage();
+    }
+
+    openMessage() {
+        new MessageView();
     }
 
     getHttpClient():GrowthbeatHttpClient {

@@ -89,7 +89,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"./model/client-event":2,"./model/client-tag":3,"component-emitter":10}],2:[function(require,module,exports){
+},{"./model/client-event":2,"./model/client-tag":3,"component-emitter":11}],2:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientEvent = (function () {
     function ClientEvent(data) {
@@ -142,7 +142,7 @@ var ClientEvent = (function () {
 })();
 module.exports = ClientEvent;
 
-},{"nanoajax":11}],3:[function(require,module,exports){
+},{"nanoajax":12}],3:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientTag = (function () {
     function ClientTag(data) {
@@ -195,7 +195,7 @@ var ClientTag = (function () {
 })();
 module.exports = ClientTag;
 
-},{"nanoajax":11}],4:[function(require,module,exports){
+},{"nanoajax":12}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var GrowthbeatHttpClient = (function () {
     function GrowthbeatHttpClient(baseUrl, timeout) {
@@ -278,7 +278,7 @@ var GrowthbeatHttpClient = (function () {
 })();
 module.exports = GrowthbeatHttpClient;
 
-},{"nanoajax":11}],5:[function(require,module,exports){
+},{"nanoajax":12}],5:[function(require,module,exports){
 var GrowthbeatHttpClient = require('./http/growthbeat-http-client');
 var Client = require('./model/client');
 var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
@@ -362,7 +362,7 @@ var Client = (function (_super) {
 })(Emitter);
 module.exports = Client;
 
-},{"component-emitter":10}],7:[function(require,module,exports){
+},{"component-emitter":11}],7:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthbeatAnalytics = require('../growthanalytics/index');
 var GrowthbeatMessage = require('../growthmessage/index');
@@ -406,6 +406,7 @@ module.exports = Growthbeat;
 },{"../growthanalytics/index":1,"../growthbeat-core/index":5,"../growthmessage/index":8}],8:[function(require,module,exports){
 var GrowthbeatHttpClient = require('../growthbeat-core/http/growthbeat-http-client');
 var GrowthAnalytics = require('../growthanalytics/index');
+var MessageView = require('./view/message-view');
 var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 10 * 1000;
 var GrowthMessage = (function () {
@@ -435,6 +436,10 @@ var GrowthMessage = (function () {
     };
     GrowthMessage.prototype.recevieMessage = function (eventId) {
         console.log('recevieMessage');
+        this.openMessage();
+    };
+    GrowthMessage.prototype.openMessage = function () {
+        new MessageView();
     };
     GrowthMessage.prototype.getHttpClient = function () {
         return this.httpClient;
@@ -444,7 +449,30 @@ var GrowthMessage = (function () {
 })();
 module.exports = GrowthMessage;
 
-},{"../growthanalytics/index":1,"../growthbeat-core/http/growthbeat-http-client":4}],9:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/http/growthbeat-http-client":4,"./view/message-view":9}],9:[function(require,module,exports){
+var styles = '/* STYLES */';
+var MessageView = (function () {
+    //private el:HTMLElement = null;
+    function MessageView() {
+        console.log('messageview');
+    }
+    MessageView.prototype.render = function () {
+        var el = document.createElement('div');
+        el.className = 'growthmessage';
+        document.body.appendChild(el);
+        //this.el = document.body.getElementsByClassName(el.className)[0];
+    };
+    MessageView.prototype.setStyles = function () {
+        //var el:HTMLElement = document.createElement('style');
+        //el.type = 'text/css';
+        //el.innerHTML = styles;
+        //document.getElementsByTagName('head')[0].appendChild(el);
+    };
+    return MessageView;
+})();
+module.exports = MessageView;
+
+},{}],10:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
 var Growthbeat = require('./growthbeat/index');
@@ -458,7 +486,7 @@ if (window) {
     window['GrowthbeatMessage'] = GrowthbeatMessage;
 }
 
-},{"./growthanalytics/index":1,"./growthbeat-core/index":5,"./growthbeat/index":7,"./growthmessage/index":8}],10:[function(require,module,exports){
+},{"./growthanalytics/index":1,"./growthbeat-core/index":5,"./growthbeat/index":7,"./growthmessage/index":8}],11:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -621,7 +649,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}
@@ -668,4 +696,4 @@ function setDefault(obj, key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9]);
+},{}]},{},[10]);
