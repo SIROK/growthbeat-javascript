@@ -198,36 +198,60 @@ var GrowthbeatHttpClient = (function () {
         this.baseUrl = baseUrl;
         this.timeout = timeout;
     }
-    GrowthbeatHttpClient.prototype.get = function (api, params, success, error) {
-        return this.request('GET', api, params, success, error);
+    GrowthbeatHttpClient.prototype.get = function (api, options, success, error) {
+        return this._request('GET', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.post = function (api, params, success, error) {
-        return this.request('POST', api, params, success, error);
+    GrowthbeatHttpClient.prototype.post = function (api, options, success, error) {
+        return this._request('POST', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.put = function (api, params, success, error) {
-        return this.request('PUT', api, params, success, error);
+    GrowthbeatHttpClient.prototype.put = function (api, options, success, error) {
+        return this._request('PUT', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.delete = function (api, params, success, error) {
-        return this.request('DELETE', api, params, success, error);
+    GrowthbeatHttpClient.prototype.delete = function (api, options, success, error) {
+        return this._request('DELETE', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.request = function (method, api, option, success, error) {
-        var paramsObj = (option.params == null) ? {} : option.params;
-        var params = Object.keys(paramsObj).map(function (key) {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
-        }).join('&');
-        var ajaxParams = {
-            method: method,
-            url: this.baseUrl + api,
-            withCredentials: true
-        };
-        if (method === 'GET') {
-            ajaxParams.url = "" + ajaxParams + "?" + params;
+    GrowthbeatHttpClient.prototype._request = function (method, api, options, success, error) {
+        if (options.dataType === 'jsonp') {
+            this._requestByJsonp('GET', api, options, success, error);
         }
         else {
-            ajaxParams.body = params;
+            this._requestByXhr(method, api, options, success, error);
+        }
+    };
+    GrowthbeatHttpClient.prototype._requestByJsonp = function (method, api, options, success, error) {
+        var params = this._makeParamsArray(options.params);
+        var jsonpCallbackName = 'growthbeat' + Math.random().toString(36).slice(-8);
+        ;
+        params = params.concat('callback=' + jsonpCallbackName);
+        var url = this.baseUrl + api + '?' + params.join('&');
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = url;
+        window[jsonpCallbackName] = function (data) {
+            delete window[jsonpCallbackName];
+            success(data, 200);
+        };
+        script.onerror = function (err) {
+            console.log('script error', err);
+            error();
+        };
+        document.body.appendChild(script);
+    };
+    GrowthbeatHttpClient.prototype._requestByXhr = function (method, api, options, success, error) {
+        var params = this._makeParamsArray(options.params);
+        var nanoParams = {
+            method: method,
+            url: this.baseUrl + api,
+            withCredentials: (options.cors === true)
+        };
+        if (method === 'GET') {
+            nanoParams.url = nanoParams.url + '?' + params.join('&');
+        }
+        else {
+            nanoParams.body = params.join('&');
         }
         // TODO: handle timeout
-        nanoajax.ajax(ajaxParams, function (code, responseText) {
+        nanoajax.ajax(nanoParams, function (code, responseText) {
             if (code === 200) {
                 var data = JSON.parse(responseText);
                 success(data, code);
@@ -237,6 +261,13 @@ var GrowthbeatHttpClient = (function () {
                 error(err, code);
             }
         });
+    };
+    GrowthbeatHttpClient.prototype._makeParamsArray = function (obj) {
+        var paramsObj = (obj == null) ? {} : obj;
+        var params = Object.keys(paramsObj).map(function (key) {
+            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
+        });
+        return params;
     };
     return GrowthbeatHttpClient;
 })();
@@ -269,22 +300,24 @@ var GrowthbeatCore = (function () {
         }
         // TODO: authentication
         var client = Client.create();
-        client.bind('created', function () {
+        client.on('created', function () {
             console.log('created');
         });
-        client.bind('error', function () {
+        client.on('error', function () {
             console.log('error');
         });
         var opt = {
             params: {
                 applicationId: applicationId,
                 credentialId: credentialId
-            }
+            },
+            dataType: 'jsonp'
         };
-        this.httpClient.post('1/clients', opt, function (data, code) {
-            client.trigger('created');
+        this.httpClient.get('1/clients', opt, function (data, code) {
+            console.log(data, code);
+            client.emit('created');
         }, function (err, code) {
-            client.trigger('error');
+            client.emit('error');
         });
         console.log('initialized: GrowthbeatCore');
         this._initialized = true;
@@ -305,7 +338,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var MicroEvent = require('microevent');
+var Emitter = require('component-emitter');
 var Client = (function (_super) {
     __extends(Client, _super);
     function Client() {
@@ -321,13 +354,13 @@ var Client = (function (_super) {
     Client.findById = function () {
     };
     return Client;
-})(MicroEvent);
+})(Emitter);
 module.exports = Client;
 
-},{"microevent":10}],7:[function(require,module,exports){
-var GrowthbeatCore = require('../../growthbeat-core/ts/index');
-var GrowthbeatAnalytics = require('../../growthanalytics/ts/index');
-var GrowthbeatMessage = require('../../growthmessage/ts/index');
+},{"component-emitter":10}],7:[function(require,module,exports){
+var GrowthbeatCore = require('../growthbeat-core/index');
+var GrowthbeatAnalytics = require('../growthanalytics/index');
+var GrowthbeatMessage = require('../growthmessage/index');
 var Growthbeat = (function () {
     function Growthbeat() {
         this._initialized = false;
@@ -365,7 +398,7 @@ var Growthbeat = (function () {
 })();
 module.exports = Growthbeat;
 
-},{"../../growthanalytics/ts/index":1,"../../growthbeat-core/ts/index":5,"../../growthmessage/ts/index":8}],8:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/index":5,"../growthmessage/index":8}],8:[function(require,module,exports){
 var GrowthMessage = (function () {
     function GrowthMessage() {
         this._initialized = false;
@@ -393,11 +426,11 @@ module.exports = GrowthMessage;
 
 },{}],9:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
-///<reference path='../local_typings/microevent.d.ts' />
-var Growthbeat = require('./growthbeat/ts/index');
-var GrowthbeatCore = require('./growthbeat-core/ts/index');
-var GrowthbeatAnalytics = require('./growthanalytics/ts/index');
-var GrowthbeatMessage = require('./growthmessage/ts/index');
+///<reference path='../local_typings/component-emitter.d.ts' />
+var Growthbeat = require('./growthbeat/index');
+var GrowthbeatCore = require('./growthbeat-core/index');
+var GrowthbeatAnalytics = require('./growthanalytics/index');
+var GrowthbeatMessage = require('./growthmessage/index');
 if (window) {
     window['Growthbeat'] = Growthbeat;
     window['GrowthbeatCore'] = GrowthbeatCore;
@@ -405,57 +438,168 @@ if (window) {
     window['GrowthbeatMessage'] = GrowthbeatMessage;
 }
 
-},{"./growthanalytics/ts/index":1,"./growthbeat-core/ts/index":5,"./growthbeat/ts/index":7,"./growthmessage/ts/index":8}],10:[function(require,module,exports){
-/**
- * MicroEvent - to make any js object an event emitter (server or browser)
- * 
- * - pure javascript - server compatible, browser compatible
- * - dont rely on the browser doms
- * - super simple - you get it immediatly, no mistery, no magic involved
- *
- * - create a MicroEventDebug with goodies to debug
- *   - make it safer to use
-*/
+},{"./growthanalytics/index":1,"./growthbeat-core/index":5,"./growthbeat/index":7,"./growthmessage/index":8}],10:[function(require,module,exports){
 
-var MicroEvent	= function(){}
-MicroEvent.prototype	= {
-	bind	: function(event, fct){
-		this._events = this._events || {};
-		this._events[event] = this._events[event]	|| [];
-		this._events[event].push(fct);
-	},
-	unbind	: function(event, fct){
-		this._events = this._events || {};
-		if( event in this._events === false  )	return;
-		this._events[event].splice(this._events[event].indexOf(fct), 1);
-	},
-	trigger	: function(event /* , args... */){
-		this._events = this._events || {};
-		if( event in this._events === false  )	return;
-		for(var i = 0; i < this._events[event].length; i++){
-			this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1))
-		}
-	}
+/**
+ * Expose `Emitter`.
+ */
+
+module.exports = Emitter;
+
+/**
+ * Initialize a new `Emitter`.
+ *
+ * @api public
+ */
+
+function Emitter(obj) {
+  if (obj) return mixin(obj);
 };
 
 /**
- * mixin will delegate all MicroEvent.js function in the destination object
+ * Mixin the emitter properties.
  *
- * - require('MicroEvent').mixin(Foobar) will make Foobar able to use MicroEvent
- *
- * @param {Object} the object which will support MicroEvent
-*/
-MicroEvent.mixin	= function(destObject){
-	var props	= ['bind', 'unbind', 'trigger'];
-	for(var i = 0; i < props.length; i ++){
-		destObject.prototype[props[i]]	= MicroEvent.prototype[props[i]];
-	}
+ * @param {Object} obj
+ * @return {Object}
+ * @api private
+ */
+
+function mixin(obj) {
+  for (var key in Emitter.prototype) {
+    obj[key] = Emitter.prototype[key];
+  }
+  return obj;
 }
 
-// export in common js
-if( typeof module !== "undefined" && ('exports' in module)){
-	module.exports	= MicroEvent
-}
+/**
+ * Listen on the given `event` with `fn`.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.on =
+Emitter.prototype.addEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+  (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+    .push(fn);
+  return this;
+};
+
+/**
+ * Adds an `event` listener that will be invoked a single
+ * time then automatically removed.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.once = function(event, fn){
+  function on() {
+    this.off(event, on);
+    fn.apply(this, arguments);
+  }
+
+  on.fn = fn;
+  this.on(event, on);
+  return this;
+};
+
+/**
+ * Remove the given callback for `event` or all
+ * registered callbacks.
+ *
+ * @param {String} event
+ * @param {Function} fn
+ * @return {Emitter}
+ * @api public
+ */
+
+Emitter.prototype.off =
+Emitter.prototype.removeListener =
+Emitter.prototype.removeAllListeners =
+Emitter.prototype.removeEventListener = function(event, fn){
+  this._callbacks = this._callbacks || {};
+
+  // all
+  if (0 == arguments.length) {
+    this._callbacks = {};
+    return this;
+  }
+
+  // specific event
+  var callbacks = this._callbacks['$' + event];
+  if (!callbacks) return this;
+
+  // remove all handlers
+  if (1 == arguments.length) {
+    delete this._callbacks['$' + event];
+    return this;
+  }
+
+  // remove specific handler
+  var cb;
+  for (var i = 0; i < callbacks.length; i++) {
+    cb = callbacks[i];
+    if (cb === fn || cb.fn === fn) {
+      callbacks.splice(i, 1);
+      break;
+    }
+  }
+  return this;
+};
+
+/**
+ * Emit `event` with the given args.
+ *
+ * @param {String} event
+ * @param {Mixed} ...
+ * @return {Emitter}
+ */
+
+Emitter.prototype.emit = function(event){
+  this._callbacks = this._callbacks || {};
+  var args = [].slice.call(arguments, 1)
+    , callbacks = this._callbacks['$' + event];
+
+  if (callbacks) {
+    callbacks = callbacks.slice(0);
+    for (var i = 0, len = callbacks.length; i < len; ++i) {
+      callbacks[i].apply(this, args);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return array of callbacks for `event`.
+ *
+ * @param {String} event
+ * @return {Array}
+ * @api public
+ */
+
+Emitter.prototype.listeners = function(event){
+  this._callbacks = this._callbacks || {};
+  return this._callbacks['$' + event] || [];
+};
+
+/**
+ * Check if this emitter has `event` handlers.
+ *
+ * @param {String} event
+ * @return {Boolean}
+ * @api public
+ */
+
+Emitter.prototype.hasListeners = function(event){
+  return !! this.listeners(event).length;
+};
 
 },{}],11:[function(require,module,exports){
 (function (global){

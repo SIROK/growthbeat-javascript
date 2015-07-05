@@ -1,6 +1,6 @@
-import GrowthbeatCore = require('../../growthbeat-core/ts/index');
-import GrowthbeatAnalytics = require('../../growthanalytics/ts/index');
-import GrowthbeatMessage = require('../../growthmessage/ts/index');
+import GrowthbeatCore = require('../growthbeat-core/index');
+import GrowthbeatAnalytics = require('../growthanalytics/index');
+import GrowthbeatMessage = require('../growthmessage/index');
 
 class Growthbeat {
     private static _instance:Growthbeat = null;
