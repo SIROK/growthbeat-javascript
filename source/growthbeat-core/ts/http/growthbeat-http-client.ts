@@ -37,7 +37,7 @@ class GrowthbeatHttpClient {
 
     _requestByJsonp(method:string, api:string, options:Options, success:Function, error:Function) {
         var params = this._makeParamsArray(options.params);
-        var jsonpCallbackName = 'jsonpCallback';
+        var jsonpCallbackName = 'growthbeat' + Math.random().toString(36).slice(-8);;
 
         params = params.concat('callback=' + jsonpCallbackName);
 
