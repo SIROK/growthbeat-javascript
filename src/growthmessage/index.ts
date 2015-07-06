@@ -3,7 +3,7 @@ import GrowthAnalytics = require('../growthanalytics/index');
 import MessageView = require('./view/message-view');
 
 //var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
-var HTTP_CLIENT_BASE_URL = 'http://localhost:8000/'
+var HTTP_CLIENT_BASE_URL = 'http://localhost:8000/';
 var HTTP_CLIENT_TIMEOUT = 10 * 1000;
 
 class GrowthMessage {
@@ -40,17 +40,17 @@ class GrowthMessage {
     recevieMessage(eventId:string) {
         console.log('recevieMessage');
 
-        this.httpClient.get('sample/json/image-0button.json', {},
+        this.httpClient.get('sample/json/image-2buttons.json', {},
             (data, code) => {
                 console.log(data, code);
                 this.loadImages(data, () => {
                     console.log('image loaded');
+                    this.openMessage(data);
                 });
             },
             (err, code) => {
                 console.log(err, code);
             });
-        this.openMessage();
     }
 
     loadImages(data, callback) {
@@ -72,20 +72,27 @@ class GrowthMessage {
             return
         }
 
+        var count = 0;
+
         urls.forEach((url)=> {
             var img:HTMLImageElement = document.createElement('img');
             img.onload = ()=> {
-                callback()
+                if (++count === urls.length) {
+                    callback();
+                }
             };
             img.onerror = ()=> {
-                callback()
+                if (++count === urls.length) {
+                    callback();
+                }
             };
             img.src = url;
         });
     }
 
-    openMessage() {
-        new MessageView();
+    openMessage(data) {
+        var messageView = new MessageView();
+        messageView.open(data);
     }
 
     getHttpClient():GrowthbeatHttpClient {

@@ -20,7 +20,7 @@ class Dialog extends Emitter {
         this.setElement();
         this.fitOverlay();
         this.fitDialog();
-        this.scaleDialog();
+        //this.scaleDialog();
         this.bindEvents();
         this.animateForOpen(100);
     }

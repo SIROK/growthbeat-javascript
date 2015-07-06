@@ -31,6 +31,7 @@ class MessageView {
 
     open(data) {
         var dialog = new Dialog();
+        dialog.open(data);
     }
 }
 

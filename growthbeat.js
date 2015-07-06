@@ -438,15 +438,15 @@ var GrowthMessage = (function () {
     GrowthMessage.prototype.recevieMessage = function (eventId) {
         var _this = this;
         console.log('recevieMessage');
-        this.httpClient.get('sample/json/image-0button.json', {}, function (data, code) {
+        this.httpClient.get('sample/json/image-2buttons.json', {}, function (data, code) {
             console.log(data, code);
             _this.loadImages(data, function () {
                 console.log('image loaded');
+                _this.openMessage(data);
             });
         }, function (err, code) {
             console.log(err, code);
         });
-        this.openMessage();
     };
     GrowthMessage.prototype.loadImages = function (data, callback) {
         console.log('loadImages');
@@ -467,19 +467,25 @@ var GrowthMessage = (function () {
             callback();
             return;
         }
+        var count = 0;
         urls.forEach(function (url) {
             var img = document.createElement('img');
             img.onload = function () {
-                callback();
+                if (++count === urls.length) {
+                    callback();
+                }
             };
             img.onerror = function () {
-                callback();
+                if (++count === urls.length) {
+                    callback();
+                }
             };
             img.src = url;
         });
     };
-    GrowthMessage.prototype.openMessage = function () {
-        new MessageView();
+    GrowthMessage.prototype.openMessage = function (data) {
+        var messageView = new MessageView();
+        messageView.open(data);
     };
     GrowthMessage.prototype.getHttpClient = function () {
         return this.httpClient;
@@ -513,7 +519,7 @@ var Dialog = (function (_super) {
         this.setElement();
         this.fitOverlay();
         this.fitDialog();
-        this.scaleDialog();
+        //this.scaleDialog();
         this.bindEvents();
         this.animateForOpen(100);
     };
@@ -526,6 +532,7 @@ var Dialog = (function (_super) {
     };
     Dialog.prototype.render = function (data) {
         var html = new t(templates[data.type]).render(this.filter(data));
+        console.log(html);
         this.parentElement.innerHTML = html;
     };
     Dialog.prototype.filter = function (data) {
@@ -648,6 +655,7 @@ var MessageView = (function () {
     };
     MessageView.prototype.open = function (data) {
         var dialog = new Dialog();
+        dialog.open(data);
     };
     return MessageView;
 })();
