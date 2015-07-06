@@ -11,16 +11,16 @@ uglify = require 'gulp-uglify'
 source = require 'vinyl-source-stream'
 
 gulp.task 'ts', shell.task [
-  '$(npm bin)/tsc source/index.ts --target es5 --module commonjs --outDir lib'
+  '$(npm bin)/tsc src/index.ts --target es5 --module commonjs --outDir lib'
 ]
 
 gulp.task 'html', ->
-  gulp.src('source/**/*.html')
+  gulp.src('src/**/*.html')
   .pipe(minifyHTML({}))
   .pipe(gulp.dest('lib'))
 
 gulp.task 'css', ->
-  sass('source/', {style: 'expanded'})
+  sass('src/', {style: 'expanded'})
   .pipe(minifyCss())
   .pipe(gulp.dest('lib/'))
 

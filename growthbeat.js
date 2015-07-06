@@ -475,6 +475,7 @@ module.exports = MessageView;
 },{}],10:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
+///<reference path='../local_typings/t.d.ts' />
 var Growthbeat = require('./growthbeat/index');
 var GrowthbeatCore = require('./growthbeat-core/index');
 var GrowthbeatAnalytics = require('./growthanalytics/index');
