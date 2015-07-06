@@ -7,6 +7,7 @@ plumber = require 'gulp-plumber'
 rename = require 'gulp-rename'
 sass = require 'gulp-ruby-sass'
 shell = require 'gulp-shell'
+streamify = require 'gulp-streamify'
 uglify = require 'gulp-uglify'
 source = require 'vinyl-source-stream'
 
@@ -39,16 +40,13 @@ gulp.task 'js', ['gfi'], ->
   .pipe(plumber())
   .pipe(source('growthbeat.js'))
   .pipe(gulp.dest('./'))
+  .pipe(streamify(uglify()))
+  .pipe(rename({extname: '.min.js'}))
+  .pipe(gulp.dest('./'))
 
 gulp.task 'clean', shell.task [
   'rm -rf lib/*'
 ]
-
-gulp.task 'uglify', () ->
-  gulp.src('growthbeat.js')
-  .pipe(uglify())
-  .pipe(rename({extname: '.min.js'}))
-  .pipe(gulp.dest('./'))
 
 gulp.task 'build', ['js']
 gulp.task 'default', ['build']
