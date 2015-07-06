@@ -532,7 +532,6 @@ var Dialog = (function (_super) {
     };
     Dialog.prototype.render = function (data) {
         var html = new t(templates[data.type]).render(this.filter(data));
-        console.log(html);
         this.parentElement.innerHTML = html;
     };
     Dialog.prototype.filter = function (data) {
