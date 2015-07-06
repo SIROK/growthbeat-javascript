@@ -1,0 +1,64 @@
+{
+  "created": "2015-04-26T21:14:50+0000",
+  "eventId": "Event:P5C3vzoLOEijnlVj:Default:Open",
+  "frequency": 1,
+  "segmentId": "Segment:P5C3vzoLOEijnlVj:Default:All",
+  "cap": 100,
+  "archived": null,
+  "version": 0,
+  "id": "PAzy4J2NpiTrDwGG",
+  "type": "image",
+  "task": {
+    "created": "2015-04-26T21:14:50+0000",
+    "applicationId": "P5C3vzoLOEijnlVj",
+    "disabled": false,
+    "availableFrom": "2015-03-31T21:14:11+0000",
+    "availableTo": "2015-05-30T21:14:11+0000",
+    "updated": "2015-05-13T05:40:38+0000",
+    "description": "ボタン1つ(×なし)",
+    "name": "ボタン1つ(×なし)",
+    "id": "PAzy4Iv2Zr1gBVH2",
+    "messages": null
+  },
+  "buttons": [
+    {
+      "created": "2015-04-26T21:14:50+0000",
+      "type": "image",
+      "message": null,
+      "intent": {
+        "url": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=472931728&pageNumber=0&sortOrdering=1&type=Purple+Software&mt=8",
+        "created": "2015-04-01T01:45:37+0000",
+        "applicationId": "P5C3vzoLOEijnlVj",
+        "description": "レビュー画面へ遷移させます",
+        "name": "レビュー画面への遷移",
+        "id": "P8Z2ZOk4cyDJy6I8",
+        "type": "url"
+      },
+      "picture": {
+        "url": "http://growthmessage.s3-ap-northeast-1.amazonaws.com/pictures/PAzxzWw19opT3wnu.png",
+        "created": "2015-04-26T21:14:32+0000",
+        "applicationId": "P5C3vzoLOEijnlVj",
+        "deleted": null,
+        "updated": "2015-04-26T21:14:32+0000",
+        "width": 399,
+        "height": 68,
+        "name": "image_2.png",
+        "id": "PAzxzWw19opT3wnu",
+        "extension": "png"
+      },
+      "id": "PAzy4KFr7jqXsBu3"
+    }
+  ],
+  "picture": {
+    "url": "http://growthmessage.s3-ap-northeast-1.amazonaws.com/pictures/PAzxy7zYtONWN3mX.png",
+    "created": "2015-04-26T21:14:27+0000",
+    "applicationId": "P5C3vzoLOEijnlVj",
+    "deleted": null,
+    "updated": "2015-04-26T21:14:27+0000",
+    "width": 398,
+    "height": 535,
+    "name": "image_1.png",
+    "id": "PAzxy7zYtONWN3mX",
+    "extension": "png"
+  }
+}

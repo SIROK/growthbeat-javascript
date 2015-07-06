@@ -2,7 +2,8 @@ import GrowthbeatHttpClient = require('../growthbeat-core/http/growthbeat-http-c
 import GrowthAnalytics = require('../growthanalytics/index');
 import MessageView = require('./view/message-view');
 
-var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
+//var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
+var HTTP_CLIENT_BASE_URL = 'http://localhost:8000/'
 var HTTP_CLIENT_TIMEOUT = 10 * 1000;
 
 class GrowthMessage {
@@ -38,7 +39,49 @@ class GrowthMessage {
 
     recevieMessage(eventId:string) {
         console.log('recevieMessage');
+
+        this.httpClient.get('sample/json/image-0button.json', {},
+            (data, code) => {
+                console.log(data, code);
+                this.loadImages(data, () => {
+                    console.log('image loaded');
+                });
+            },
+            (err, code) => {
+                console.log(err, code);
+            });
         this.openMessage();
+    }
+
+    loadImages(data, callback) {
+        console.log('loadImages');
+        var deepExtract = (input:{}, name:string, output = []):string[] => {
+            Object.keys(input).forEach((key)=> {
+                if (key === 'picture') {
+                    output.push(input[key].url);
+                } else if (input[key] instanceof Object) {
+                    output = deepExtract(input[key], name, output);
+                }
+            });
+            return output;
+        };
+        var urls = deepExtract(data, 'picture');
+
+        if (0 >= urls.length) {
+            callback();
+            return
+        }
+
+        urls.forEach((url)=> {
+            var img:HTMLImageElement = document.createElement('img');
+            img.onload = ()=> {
+                callback()
+            };
+            img.onerror = ()=> {
+                callback()
+            };
+            img.src = url;
+        });
     }
 
     openMessage() {

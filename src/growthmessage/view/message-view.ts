@@ -1,3 +1,5 @@
+import Dialog = require('./dialog');
+
 var styles = '/* STYLES */';
 
 class MessageView {
@@ -21,6 +23,14 @@ class MessageView {
         el.type = 'text/css';
         el.innerHTML = styles;
         document.getElementsByTagName('head')[0].appendChild(el);
+    }
+
+    handleEvents() {
+
+    }
+
+    open(data) {
+        var dialog = new Dialog();
     }
 }
 

@@ -89,7 +89,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"./model/client-event":2,"./model/client-tag":3,"component-emitter":11}],2:[function(require,module,exports){
+},{"./model/client-event":2,"./model/client-tag":3,"component-emitter":12}],2:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientEvent = (function () {
     function ClientEvent(data) {
@@ -142,7 +142,7 @@ var ClientEvent = (function () {
 })();
 module.exports = ClientEvent;
 
-},{"nanoajax":12}],3:[function(require,module,exports){
+},{"nanoajax":13}],3:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var ClientTag = (function () {
     function ClientTag(data) {
@@ -195,7 +195,7 @@ var ClientTag = (function () {
 })();
 module.exports = ClientTag;
 
-},{"nanoajax":12}],4:[function(require,module,exports){
+},{"nanoajax":13}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var GrowthbeatHttpClient = (function () {
     function GrowthbeatHttpClient(baseUrl, timeout) {
@@ -278,7 +278,7 @@ var GrowthbeatHttpClient = (function () {
 })();
 module.exports = GrowthbeatHttpClient;
 
-},{"nanoajax":12}],5:[function(require,module,exports){
+},{"nanoajax":13}],5:[function(require,module,exports){
 var GrowthbeatHttpClient = require('./http/growthbeat-http-client');
 var Client = require('./model/client');
 var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
@@ -362,7 +362,7 @@ var Client = (function (_super) {
 })(Emitter);
 module.exports = Client;
 
-},{"component-emitter":11}],7:[function(require,module,exports){
+},{"component-emitter":12}],7:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthbeatAnalytics = require('../growthanalytics/index');
 var GrowthbeatMessage = require('../growthmessage/index');
@@ -407,7 +407,8 @@ module.exports = Growthbeat;
 var GrowthbeatHttpClient = require('../growthbeat-core/http/growthbeat-http-client');
 var GrowthAnalytics = require('../growthanalytics/index');
 var MessageView = require('./view/message-view');
-var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
+//var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
+var HTTP_CLIENT_BASE_URL = 'http://localhost:8000/';
 var HTTP_CLIENT_TIMEOUT = 10 * 1000;
 var GrowthMessage = (function () {
     function GrowthMessage() {
@@ -435,8 +436,47 @@ var GrowthMessage = (function () {
         this._initialized = true;
     };
     GrowthMessage.prototype.recevieMessage = function (eventId) {
+        var _this = this;
         console.log('recevieMessage');
+        this.httpClient.get('sample/json/image-0button.json', {}, function (data, code) {
+            console.log(data, code);
+            _this.loadImages(data, function () {
+                console.log('image loaded');
+            });
+        }, function (err, code) {
+            console.log(err, code);
+        });
         this.openMessage();
+    };
+    GrowthMessage.prototype.loadImages = function (data, callback) {
+        console.log('loadImages');
+        var deepExtract = function (input, name, output) {
+            if (output === void 0) { output = []; }
+            Object.keys(input).forEach(function (key) {
+                if (key === 'picture') {
+                    output.push(input[key].url);
+                }
+                else if (input[key] instanceof Object) {
+                    output = deepExtract(input[key], name, output);
+                }
+            });
+            return output;
+        };
+        var urls = deepExtract(data, 'picture');
+        if (0 >= urls.length) {
+            callback();
+            return;
+        }
+        urls.forEach(function (url) {
+            var img = document.createElement('img');
+            img.onload = function () {
+                callback();
+            };
+            img.onerror = function () {
+                callback();
+            };
+            img.src = url;
+        });
     };
     GrowthMessage.prototype.openMessage = function () {
         new MessageView();
@@ -449,7 +489,141 @@ var GrowthMessage = (function () {
 })();
 module.exports = GrowthMessage;
 
-},{"../growthanalytics/index":1,"../growthbeat-core/http/growthbeat-http-client":4,"./view/message-view":9}],9:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/http/growthbeat-http-client":4,"./view/message-view":10}],9:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Emitter = require('component-emitter');
+var t = require('t');
+var templates = {
+    plain: '<div class=growthmessage-dialog><div class=growthmessage-dialog__inner><div class=growthmessage-dialog__margin-left></div><div class=growthmessage-dialog__contents><div class=growthmessage-dialog-text><div class=growthmessage-dialog-text__title>{{=caption}}</div><div class=growthmessage-dialog-text__body>{{=text}}</div><div class=growthmessage-dialog-text__buttons>{{@buttons}} {{_val._isUrlType}} <a href="{{=_val.intent.url}}" class="{{=_linkBtnClass}} growthmessage-dialog-text__button">{{=_val.label}}</a> {{:_val._isUrlType}}<div class="{{=_closeBtnClass}} growthmessage-dialog-text__button">{{=_val.label}}</div>{{/_val._isUrlType}} {{/@buttons}}</div></div></div><div class=growthmessage-dialog__margin-right></div></div></div>',
+    image: '<div class="{{=_closeElClass}} growthmessage-dialog"><div class=growthmessage-dialog__inner><div class="{{=_closeElClass}} growthmessage-dialog__margin-left"></div><div class="{{=_closeElClass}} growthmessage-dialog__contents"><div class=growthmessage-dialog-image>{{_screenIsUrlType}} <a href="{{=_screen.intent.url}}" class=growthmessage-dialog-image__bg><img src="{{=picture.url}}" class="{{=_linkBtnClass}}"></a> {{:_screenIsUrlType}}<div class=growthmessage-dialog-image__bg><img src="{{=picture.url}}" class="{{_screen}}{{=_closeBtnClass}}{{/_screen}}"></div>{{/_screenIsUrlType}}<div class=growthmessage-dialog-image__buttons>{{@buttons}} {{_val._isUrlType}} <a href="{{=_val.intent.url}}" class=growthmessage-dialog-image__button><img src="{{=_val.picture.url}}" class="{{=_linkBtnClass}}"></a> {{:_val._isUrlType}}<div class=growthmessage-dialog-image__button><img src="{{=_val.picture.url}}" class="{{=_closeBtnClass}}"></div>{{/_val._isUrlType}} {{/@buttons}}</div>{{_close}} <img src="{{=_close.picture.url}}" class="{{=_closeBtnClass}} growthmessage-dialog__button-close"> {{/_close}}</div></div><div class="{{=_closeElClass}} growthmessage-dialog__margin-right"></div></div></div>'
+};
+var Dialog = (function (_super) {
+    __extends(Dialog, _super);
+    function Dialog() {
+        _super.call(this);
+    }
+    Dialog.prototype.open = function (data) {
+        this.parentElement = document.body.getElementsByClassName('growthmessage')[0];
+        this.render(data);
+        this.setElement();
+        this.fitOverlay();
+        this.fitDialog();
+        this.scaleDialog();
+        this.bindEvents();
+        this.animateForOpen(100);
+    };
+    Dialog.prototype.hide = function (delay) {
+        var _this = this;
+        if (delay === void 0) { delay = 0; }
+        setTimeout(function () {
+            _this.parentElement.innerHTML = '';
+        }, delay);
+    };
+    Dialog.prototype.render = function (data) {
+        var html = new t(templates[data.type]).render(this.filter(data));
+        this.parentElement.innerHTML = html;
+    };
+    Dialog.prototype.filter = function (data) {
+        var newButtons = [];
+        data.buttons.forEach(function (button, index) {
+            if (button.type === 'screen') {
+                data._screen = button;
+                if (button.intent.type === 'url') {
+                    data._screenIsUrlType = true;
+                }
+            }
+            else if (button.type === 'close') {
+                data._close = button;
+                data._closeElClass = 'js__growthmessage-dialog__element-close';
+            }
+            else {
+                if (button.intent.type === 'url') {
+                    button._isUrlType = true;
+                }
+                newButtons.push(button);
+            }
+        });
+        data.buttons = newButtons;
+        data._linkBtnClass = 'js__growthmessage-dialog__button-link';
+        data._closeBtnClass = 'js__growthmessage-dialog__button-close';
+        return data;
+    };
+    Dialog.prototype.setElement = function () {
+        this.el = document.body.getElementsByClassName('growthmessage-dialog')[0];
+    };
+    Dialog.prototype.animateForOpen = function (delay) {
+        var _this = this;
+        if (delay === void 0) { delay = 0; }
+        setTimeout(function () {
+            var el = document.body.getElementsByClassName('growthmessage-dialog__contents')[0];
+            el.style['transform'] = 'scale(1)';
+            el.style['-webkit-transform'] = 'scale(1)';
+            _this.el.style.opacity = 1;
+        }, delay);
+    };
+    Dialog.prototype.animateForClose = function (delay) {
+        var _this = this;
+        if (delay === void 0) { delay = 0; }
+        setTimeout(function () {
+            _this.el.style.opacity = 0;
+        }, delay);
+    };
+    Dialog.prototype.fitOverlay = function () {
+        var D = document;
+        this.el.width = Math.max(D.body.offsetWidth, D.documentElement.offsetWidth, D.body.clientWidth, D.documentElement.clientWidth);
+        this.el.style.width = this.el.width + 'px';
+        this.el.height = Math.max(D.body.scrollHeight, D.documentElement.scrollHeight, D.body.offsetHeight, D.documentElement.offsetHeight, D.body.clientHeight, D.documentElement.clientHeight);
+        this.el.style.height = this.el.height + 'px';
+    };
+    Dialog.prototype.fitDialog = function () {
+        var D = document;
+        var el = document.body.getElementsByClassName('growthmessage-dialog__inner')[0];
+        el.width = Math.max(D.body.clientWidth, D.documentElement.clientWidth);
+        el.style.width = el.style.width + 'px';
+        el.height = Math.min(D.body.clientHeight, D.documentElement.clientHeight);
+        el.style.height = el.height + 'px';
+        el.top = Math.max(window.pageYOffset, D.documentElement.scrollTop);
+        el.style.top = el.top + 'px';
+    };
+    Dialog.prototype.scaleDialog = function () {
+        var el = document.body.getElementsByClassName('growthmessage-dialog__inner')[0];
+        setTimeout(function () {
+            var D = document;
+            var height = Math.min(D.body.clientHeight, D.documentElement.clientHeight);
+            if (el.offsetHeight <= height)
+                return;
+            el.style.transform = 'scale(' + (height / el.offsetHeight * 0.85) + ')';
+            el.style.transformOrigin = 'center top';
+            el.style.top = el.top + height * 0.075 + 'px';
+        }, 100);
+    };
+    Dialog.prototype.bindEvents = function () {
+        var _this = this;
+        var eventName = ('ontouchstart' in window) ? 'touchend' : 'click';
+        this.el.addEventListener(eventName, function (e) {
+            var isElement = _this.hasClass(e.target, 'js__growthmessage-dialog__element-close');
+            var isButton = _this.hasClass(e.target, 'js__growthmessage-dialog__button-close');
+            var isLink = _this.hasClass(e.target, 'js__growthmessage-dialog__button-link');
+            if (!isElement && !isButton && !isLink)
+                return;
+            _this.animateForClose(isLink ? 600 : 0);
+            _this.hide(isLink ? 1000 : 300);
+        });
+    };
+    Dialog.prototype.hasClass = function (el, name) {
+        return (el.className.split(' ').indexOf(name) >= 0);
+    };
+    return Dialog;
+})(Emitter);
+module.exports = Dialog;
+
+},{"component-emitter":12,"t":14}],10:[function(require,module,exports){
+var Dialog = require('./dialog');
 var styles = '.growthmessage-dialog{position:absolute;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);opacity:0;font-family:sans-serif;-webkit-transition:all .2s;transition:all .2s}.growthmessage-dialog-image__button:hover,.growthmessage-dialog__button-close:hover{opacity:.8}.growthmessage-dialog__inner{position:absolute;top:0;left:0;width:100%;max-height:85%;display:table}.growthmessage-dialog__margin-left,.growthmessage-dialog__margin-right{display:table-cell;width:7.5%}.growthmessage-dialog__contents{display:table-cell;width:85%;vertical-align:middle;-webkit-transform:scale(1.1);transform:scale(1.1);-webkit-transition:all .3s;transition:all .3s}.growthmessage-dialog-text{display:table;table-layout:fixed;box-sizing:border-box;overflow:hidden;width:100%;background-color:#eaeaea;border-top:1px solid #fff;border-radius:7px}.growthmessage-dialog-text__title{margin:21px 14px 7px;text-align:center;word-wrap:break-word;line-height:24px;font-size:17px;font-weight:700}.growthmessage-dialog-text__body{margin:0 21px 21px;text-align:center;word-wrap:break-word;line-height:17px;font-size:13px}.growthmessage-dialog-text__buttons{display:table;table-layout:fixed;width:100%;border-top:1px solid #ccc}.growthmessage-dialog-text__button{display:table-cell;box-sizing:border-box;padding:14px 7px;border-right:1px solid #ccc;text-align:center;vertical-align:middle;word-wrap:break-word;text-decoration:none;font-size:17px;color:#1678e5;-webkit-tap-highlight-color:transparent}.growthmessage-dialog-text__button:hover{background:#efefef;font-weight:700}.growthmessage-dialog-text__button:last-child{border-right:none}.growthmessage-dialog-image{position:relative;display:table;table-layout:fixed;box-sizing:border-box;width:100%;font-size:0}.growthmessage-dialog-image__bg{display:table-cell;width:100%;-webkit-tap-highlight-color:transparent}.growthmessage-dialog-image__bg img{display:block;max-width:100%;margin:0 auto;padding:0}.growthmessage-dialog-image__buttons{display:table-cell;position:absolute;bottom:0;left:0;width:100%;text-align:center;vertical-align:bottom}.growthmessage-dialog-image__button{display:block;width:100%;-webkit-tap-highlight-color:transparent}.growthmessage-dialog-image__button img{display:block;max-width:100%;margin:0 auto;padding:0}.growthmessage-dialog__button-close{position:absolute;top:0;right:0;-webkit-transform:translate(50%,-50%) scale(.5);transform:translate(50%,-50%) scale(.5);font-size:0}';
 var MessageView = (function () {
     function MessageView() {
@@ -470,11 +644,16 @@ var MessageView = (function () {
         el.innerHTML = styles;
         document.getElementsByTagName('head')[0].appendChild(el);
     };
+    MessageView.prototype.handleEvents = function () {
+    };
+    MessageView.prototype.open = function (data) {
+        var dialog = new Dialog();
+    };
     return MessageView;
 })();
 module.exports = MessageView;
 
-},{}],10:[function(require,module,exports){
+},{"./dialog":9}],11:[function(require,module,exports){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
 ///<reference path='../local_typings/t.d.ts' />
@@ -489,7 +668,7 @@ if (window) {
     window['GrowthbeatMessage'] = GrowthbeatMessage;
 }
 
-},{"./growthanalytics/index":1,"./growthbeat-core/index":5,"./growthbeat/index":7,"./growthmessage/index":8}],11:[function(require,module,exports){
+},{"./growthanalytics/index":1,"./growthbeat-core/index":5,"./growthbeat/index":7,"./growthmessage/index":8}],12:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -652,7 +831,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}
@@ -699,4 +878,114 @@ function setDefault(obj, key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[10]);
+},{}],14:[function(require,module,exports){
+/*
+		 _     _
+		| |   (_)
+		| |_   _ ___
+		| __| | / __|
+		| |_ _| \__ \
+		 \__(_) |___/
+		     _/ |
+		    |__/
+
+	t.js
+	a micro-templating framework in ~400 bytes gzipped
+
+	@author  Jason Mooberry <jasonmoo@me.com>
+	@license MIT
+	@version 0.1.0
+
+*/
+(function(global) {
+
+	var blockregex = /\{\{(([@!]?)(.+?))\}\}(([\s\S]+?)(\{\{:\1\}\}([\s\S]+?))?)\{\{\/\1\}\}/g,
+		valregex = /\{\{([=%])(.+?)\}\}/g;
+
+	function t(template) {
+		this.t = template;
+	}
+
+	function scrub(val) {
+		return new Option(val).innerHTML.replace(/"/g,"&quot;");
+	}
+
+	function get_value(vars, key) {
+		var parts = key.split('.');
+		while (parts.length) {
+			if (!(parts[0] in vars)) {
+				return false;
+			}
+			vars = vars[parts.shift()];
+		}
+		return vars;
+	}
+
+	function render(fragment, vars) {
+		return fragment
+			.replace(blockregex, function(_, __, meta, key, inner, if_true, has_else, if_false) {
+
+				var val = get_value(vars,key), temp = "", i;
+
+				if (!val) {
+
+					// handle if not
+					if (meta == '!') {
+						return render(inner, vars);
+					}
+					// check for else
+					if (has_else) {
+						return render(if_false, vars);
+					}
+
+					return "";
+				}
+
+				// regular if
+				if (!meta) {
+					return render(if_true, vars);
+				}
+
+				// process array/obj iteration
+				if (meta == '@') {
+					// store any previous vars
+					// reuse existing vars
+					_ = vars._key;
+					__ = vars._val;
+					for (i in val) {
+						if (val.hasOwnProperty(i)) {
+							vars._key = i;
+							vars._val = val[i];
+							temp += render(inner, vars);
+						}
+					}
+					vars._key = _;
+					vars._val = __;
+					return temp;
+				}
+
+			})
+			.replace(valregex, function(_, meta, key) {
+				var val = get_value(vars,key);
+
+				if (val || val === 0) {
+					return meta == '%' ? scrub(val) : val;
+				}
+				return "";
+			});
+	}
+
+	t.prototype.render = function (vars) {
+		return render(this.t, vars);
+	};
+
+	if (typeof define === 'function' && define.amd) {
+		define(function() { return t; });
+	} else if (typeof exports === 'object') {
+		module.exports = t;
+	} else {
+		global.t = t;
+	}
+})(this);
+
+},{}]},{},[11]);

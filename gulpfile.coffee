@@ -18,7 +18,7 @@ gulp.task 'ts', shell.task [
 gulp.task 'html', ->
   gulp.src('src/**/*.html')
   .pipe(minifyHTML({}))
-  .pipe(gulp.dest('lib'))
+  .pipe(gulp.dest('lib/'))
 
 gulp.task 'css', ->
   sass('src/', {style: 'expanded'})
@@ -26,11 +26,18 @@ gulp.task 'css', ->
   .pipe(gulp.dest('lib/'))
 
 gulp.task 'gfi', ['html', 'css', 'ts'], ->
-  gulp.src('lib/**/*.js')
+  gulp.src('lib/growthmessage/view/message-view.js')
   .pipe(gfi({
       '/* STYLES */': 'lib/growthmessage/styles/styles.css'
     }))
-  .pipe(gulp.dest('lib/'));
+  .pipe(gulp.dest('lib/growthmessage/view/'));
+
+  gulp.src('lib/growthmessage/view/dialog.js')
+  .pipe(gfi({
+      '/* TEMPLATE_DIALOG_PLAIN */': 'lib/growthmessage/templates/dialog-text.html',
+      '/* TEMPLATE_DIALOG_IMAGE */': 'lib/growthmessage/templates/dialog-image.html'
+    }))
+  .pipe(gulp.dest('lib/growthmessage/view/'));
 
 gulp.task 'js', ['gfi'], ->
   browserify
