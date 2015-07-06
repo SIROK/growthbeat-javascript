@@ -24,7 +24,14 @@ gulp.task 'css', ->
   .pipe(minifyCss())
   .pipe(gulp.dest('lib/'))
 
-gulp.task 'js', ['ts'], ->
+gulp.task 'gfi', ['html', 'css', 'ts'], ->
+  gulp.src('lib/**/*.js')
+  .pipe(gfi({
+      '/* STYLES */': 'lib/growthmessage/styles/styles.css'
+    }))
+  .pipe(gulp.dest('lib/'));
+
+gulp.task 'js', ['gfi'], ->
   browserify
     entries: ['./lib/index.js']
     extensions: ['.js']
@@ -33,12 +40,9 @@ gulp.task 'js', ['ts'], ->
   .pipe(source('growthbeat.js'))
   .pipe(gulp.dest('./'))
 
-gulp.task 'gfi', ['html', 'css', 'js'], ->
-  gulp.src('lib/**/*.js')
-  .pipe(gfi({
-      '/* STYLES */': 'lib/growthmessage/styles/styles.css'
-    }))
-  .pipe(gulp.dest('lib/'));
+gulp.task 'clean', shell.task [
+  'rm -rf lib/*'
+]
 
 gulp.task 'uglify', () ->
   gulp.src('growthbeat.js')
@@ -46,5 +50,5 @@ gulp.task 'uglify', () ->
   .pipe(rename({extname: '.min.js'}))
   .pipe(gulp.dest('./'))
 
-gulp.task 'build', ['gfi']
+gulp.task 'build', ['js']
 gulp.task 'default', ['build']
