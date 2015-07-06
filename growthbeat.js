@@ -452,21 +452,23 @@ module.exports = GrowthMessage;
 },{"../growthanalytics/index":1,"../growthbeat-core/http/growthbeat-http-client":4,"./view/message-view":9}],9:[function(require,module,exports){
 var styles = '/* STYLES */';
 var MessageView = (function () {
-    //private el:HTMLElement = null;
     function MessageView() {
+        this.el = null;
         console.log('messageview');
+        this.render();
+        this.setStyles();
     }
     MessageView.prototype.render = function () {
         var el = document.createElement('div');
         el.className = 'growthmessage';
         document.body.appendChild(el);
-        //this.el = document.body.getElementsByClassName(el.className)[0];
+        this.el = el;
     };
     MessageView.prototype.setStyles = function () {
-        //var el:HTMLElement = document.createElement('style');
-        //el.type = 'text/css';
-        //el.innerHTML = styles;
-        //document.getElementsByTagName('head')[0].appendChild(el);
+        var el = document.createElement('style');
+        el.type = 'text/css';
+        el.innerHTML = styles;
+        document.getElementsByTagName('head')[0].appendChild(el);
     };
     return MessageView;
 })();

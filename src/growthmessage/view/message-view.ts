@@ -1,24 +1,26 @@
 var styles = '/* STYLES */';
 
 class MessageView {
-    //private el:HTMLElement = null;
+    private el:HTMLDivElement = null;
 
     constructor() {
         console.log('messageview');
+        this.render();
+        this.setStyles();
     }
 
     render() {
         var el = document.createElement('div');
         el.className = 'growthmessage';
         document.body.appendChild(el);
-        //this.el = document.body.getElementsByClassName(el.className)[0];
+        this.el = el;
     }
 
     setStyles() {
-        //var el:HTMLElement = document.createElement('style');
-        //el.type = 'text/css';
-        //el.innerHTML = styles;
-        //document.getElementsByTagName('head')[0].appendChild(el);
+        var el:HTMLStyleElement = document.createElement('style');
+        el.type = 'text/css';
+        el.innerHTML = styles;
+        document.getElementsByTagName('head')[0].appendChild(el);
     }
 }
 
