@@ -40,9 +40,9 @@ var GrowthAnalytics = (function () {
             trackParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
         var eventId = this.generateEventId(trackParams.namespace, name);
         // FIXME ClientEvent.load
-        if (trackParams.option == 0 /* ONCE */) {
+        if (trackParams.option == TrackOption.ONCE) {
         }
-        if (trackParams.option == 1 /* COUNTER */) {
+        if (trackParams.option == TrackOption.COUNTER) {
         }
         // FIXME merge GrowthbeatCore
         var clientId = 'xxxxx';
@@ -107,7 +107,10 @@ var ClientEvent = (function () {
         nanoajax.ajax({
             url: 'https://api.analytics.growthbeat.com/1/clients/',
             method: 'POST',
-            body: 'clientId=' + clientId + '&eventId=' + eventId + '&properties=' + properties + '&credentialId=' + credentialId
+            body: 'clientId=' + clientId
+                + '&eventId=' + eventId
+                + '&properties=' + properties
+                + '&credentialId=' + credentialId
         }, function (code, responseText) {
             if (code !== 200)
                 failure('failure');
@@ -160,7 +163,10 @@ var ClientTag = (function () {
         nanoajax.ajax({
             url: 'https://api.analytics.growthbeat.com/1/clients/',
             method: 'POST',
-            body: 'clientId=' + clientId + '&tagId=' + tagId + '&value=' + value + '&credentialId=' + credentialId
+            body: 'clientId=' + clientId
+                + '&tagId=' + tagId
+                + '&value=' + value
+                + '&credentialId=' + credentialId
         }, function (code, responseText) {
             if (code !== 200)
                 failure('failure');
@@ -588,13 +594,20 @@ var Dialog = (function (_super) {
     };
     Dialog.prototype.fitDialog = function () {
         var D = document;
-        var el = document.body.getElementsByClassName('growthmessage-dialog__inner')[0];
-        el.width = Math.max(D.body.clientWidth, D.documentElement.clientWidth);
-        el.style.width = el.style.width + 'px';
-        el.height = Math.min(D.body.clientHeight, D.documentElement.clientHeight);
-        el.style.height = el.height + 'px';
-        el.top = Math.max(window.pageYOffset, D.documentElement.scrollTop);
-        el.style.top = el.top + 'px';
+        var w = window.innerWidth
+            || D.documentElement.clientWidth
+            || D.body.clientWidth;
+        var h = window.innerHeight
+            || D.documentElement.clientHeight
+            || D.body.clientHeight;
+        var t = Math.max(window.pageYOffset, D.documentElement.scrollTop);
+        var el = D.body.getElementsByClassName('growthmessage-dialog__inner')[0];
+        el.width = w;
+        el.style.width = w + 'px';
+        el.height = h;
+        el.style.height = h + 'px';
+        el.top = t;
+        el.style.top = t + 'px';
     };
     Dialog.prototype.scaleDialog = function () {
         var el = document.body.getElementsByClassName('growthmessage-dialog__inner')[0];
