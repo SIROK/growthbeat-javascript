@@ -10,6 +10,7 @@ shell = require 'gulp-shell'
 streamify = require 'gulp-streamify'
 uglify = require 'gulp-uglify'
 source = require 'vinyl-source-stream'
+webserver = require 'gulp-webserver'
 
 gulp.task 'ts', shell.task [
   '$(npm bin)/tsc src/index.ts --target es5 --module commonjs --outDir lib'
@@ -55,5 +56,16 @@ gulp.task 'clean', shell.task [
   'rm -rf lib/*'
 ]
 
+gulp.task 'watch', ->
+  gulp.watch 'src/**/*', ['build']
+
+gulp.task 'webserver', ->
+  gulp.src './'
+  .pipe webserver
+    livereload:
+      enable: true
+      filter: (path) -> /growthbeat\.js/.test path
+
 gulp.task 'build', ['js']
+gulp.task 'dev', ['watch', 'webserver']
 gulp.task 'default', ['build']
