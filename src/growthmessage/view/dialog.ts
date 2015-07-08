@@ -96,17 +96,21 @@ class Dialog extends Emitter {
 
     fitDialog() {
         var D = document;
-        var el:any = document.body.getElementsByClassName('growthmessage-dialog__inner')[0];
-        el.width = Math.max(
-            D.body.clientWidth, D.documentElement.clientWidth
-        );
-        el.style.width = el.style.width + 'px';
-        el.height = Math.min(
-            D.body.clientHeight, D.documentElement.clientHeight
-        );
-        el.style.height = el.height + 'px';
-        el.top = Math.max(window.pageYOffset, D.documentElement.scrollTop);
-        el.style.top = el.top + 'px';
+        var w = window.innerWidth
+            || D.documentElement.clientWidth
+            || D.body.clientWidth;
+
+        var h = window.innerHeight
+            || D.documentElement.clientHeight
+            || D.body.clientHeight;
+        var t = Math.max(window.pageYOffset, D.documentElement.scrollTop);
+        var el:any = D.body.getElementsByClassName('growthmessage-dialog__inner')[0];
+        el.width = w;
+        el.style.width = w + 'px';
+        el.height = h;
+        el.style.height = h + 'px';
+        el.top = t;
+        el.style.top = t + 'px';
     }
 
     scaleDialog() {
@@ -141,4 +145,3 @@ class Dialog extends Emitter {
 }
 
 export = Dialog;
-
