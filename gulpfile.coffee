@@ -27,18 +27,18 @@ gulp.task 'css', ->
   .pipe(gulp.dest('lib/'))
 
 gulp.task 'gfi', ['html', 'css', 'ts'], ->
-  gulp.src('lib/growthmessage/view/message-view.js')
+  gulp.src('lib/growthmessage/views/message-controller-view.js')
   .pipe(gfi({
       '/* STYLES */': 'lib/growthmessage/styles/styles.css'
     }))
-  .pipe(gulp.dest('lib/growthmessage/view/'));
+  .pipe(gulp.dest('lib/growthmessage/views/'));
 
-  gulp.src('lib/growthmessage/view/dialog.js')
+  gulp.src('lib/growthmessage/views/dialog-view.js')
   .pipe(gfi({
       '/* TEMPLATE_DIALOG_PLAIN */': 'lib/growthmessage/templates/dialog-text.html',
       '/* TEMPLATE_DIALOG_IMAGE */': 'lib/growthmessage/templates/dialog-image.html'
     }))
-  .pipe(gulp.dest('lib/growthmessage/view/'));
+  .pipe(gulp.dest('lib/growthmessage/views/'));
 
 gulp.task 'js', ['gfi'], ->
   browserify

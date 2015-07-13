@@ -7,9 +7,9 @@ import GrowthbeatCore = require('./growthbeat-core/index');
 import GrowthbeatAnalytics = require('./growthanalytics/index');
 import GrowthbeatMessage = require('./growthmessage/index');
 
-if (window) {
-    window['Growthbeat'] = Growthbeat;
-    window['GrowthbeatCore'] = GrowthbeatCore;
-    window['GrowthbeatAnalytics'] = GrowthbeatAnalytics;
-    window['GrowthbeatMessage'] = GrowthbeatMessage;
-}
+declare var global:any;
+
+global.Growthbeat = Growthbeat;
+global.GrowthbeatCore = GrowthbeatCore;
+global.GrowthbeatAnalytics = GrowthbeatAnalytics;
+global.GrowthbeatMessage = GrowthbeatMessage;
