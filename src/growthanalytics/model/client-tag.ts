@@ -10,7 +10,6 @@ class ClientTag extends Emitter {
 
     private clientId:string;
     private tagId:string;
-    // FIXME data type
     private value:string;
     private created:Date;
 
@@ -23,8 +22,7 @@ class ClientTag extends Emitter {
         this.clientId = data.clientId;
         this.tagId = data.tagId;
         this.value = data.value;
-        // FIXME DateUtils.foramt();
-        this.created = data.created;
+        this.created = new Date(data.created);
     }
 
     static load(tagId:string):ClientTag {
@@ -32,18 +30,18 @@ class ClientTag extends Emitter {
             return null;
         }
 
-        var clientTagData = window.localStorage.getItem('growthbeat:' + tagId);
+        var clientTagData = window.localStorage.getItem(`growthanalytics:${tagId}`);
         if (clientTagData == null) {
             return null;
         }
         return new ClientTag(JSON.parse(clientTagData));
     }
 
-    static save(data:any) {
+    static save(data:ClientTag) {
         if (!window.localStorage) {
             return;
         }
-        // TODO: set ClientTag to LocalStorage
+        window.localStorage.setItem(`growthanalytics:${data.getTagId}`, JSON.stringify(data));
     }
 
     static create(clientId:string, tagId:string, value:string, credentialId:string):ClientTag {

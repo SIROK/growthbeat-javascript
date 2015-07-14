@@ -13,7 +13,6 @@ class ClientEvent extends Emitter {
 
     private clientId:string;
     private eventId:string;
-    // FIXME data type
     private properties:Properties;
     private created:Date;
 
@@ -26,8 +25,7 @@ class ClientEvent extends Emitter {
         this.clientId = data.clientId;
         this.eventId = data.eventId;
         this.properties = data.properties;
-        // FIXME DateUtils.foramt();
-        this.created = data.created;
+        this.created = new Date(data.created);
     }
 
     static load(eventId:string):ClientEvent {
@@ -35,18 +33,18 @@ class ClientEvent extends Emitter {
             return null;
         }
 
-        var clientEventData = window.localStorage.getItem('growthbeat:' + eventId);
+        var clientEventData = window.localStorage.getItem(`growthanalytics:${eventId}`);
         if (clientEventData == null) {
             return null;
         }
         return new ClientEvent(JSON.parse(clientEventData));
     }
 
-    static save(data:any) {
+    static save(data:ClientEvent) {
         if (!window.localStorage) {
             return;
         }
-        // TODO: set ClientTag to LocalStorage
+        window.localStorage.setItem(`growthanalytics:${data.getEventId}`, JSON.stringify(data));
     }
 
     static create(clientId:string, eventId:string, properties:Properties, credentialId:string):ClientEvent {
