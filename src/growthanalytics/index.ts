@@ -64,6 +64,7 @@ class GrowthAnalytics {
     private emitter = new Emitter();
 
     private static _instance:GrowthAnalytics = null;
+    private openDate:Date = null;
     private _initialized:boolean = false;
 
     constructor() {
@@ -171,43 +172,111 @@ class GrowthAnalytics {
     }
 
     open() {
-
+        this.openDate = new Date();
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Open',
+            option:TrackOption.COUNTER
+        });
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Install',
+            option:TrackOption.ONCE
+        });
     }
 
     close() {
+        if (!this.openDate)
+            return;
 
+        var time:number = (new Date().getTime() - this.openDate) / 1000;
+        this.openDate = null;
+        var properties = {
+            time: `${time}`
+        };
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Close',
+            properties: properties
+        });
     }
 
-    purchase(price:number, category:string, product) {
-
+    purchase(price:number, category:string, product:string) {
+        var properties = {
+            price: `${price}`,
+            category: category,
+            product: product
+        };
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Purchase',
+            properties: properties
+        });
     }
 
-    setUuid() {
-
+    setUuid(uuid:string) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UUID',
+            value: uuid
+        });
     }
 
     setUserrId(userId:string) {
-
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UserID',
+            value: userId
+        });
     }
 
     setName(name:string) {
-
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Name',
+            value: name
+        });
     }
 
     setAge(age:number) {
-
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Age',
+            value: `${age}`
+        });
     }
 
     setGender(gender:Gender) {
-
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Gender',
+            value: GenderUtils.toString(gender),
+        });
     }
 
     setLevel(level:number) {
-
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Level',
+            value: `${level}`
+        });
     }
 
     setDevelopment(development:boolean) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Development',
+            value: `${development}`
+        });
+    }
 
+    setUserAgent() {
+        if (!window.navigator.userAgent) return;
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UserAgent',
+            value: window.navigator.userAgent
+        });
     }
 
     setLanguage() {
@@ -220,19 +289,31 @@ class GrowthAnalytics {
     }
 
     setRandom() {
-
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Random',
+            value: `${Math.random()}`
+        });
     }
 
-    setAdvertisingId() {
-
+    setAdvertisingId(adverTisingId:string) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'AdvertisingID',
+            value: adverTisingId
+        });
     }
 
-    setTrackingEnabled() {
-
+    setTrackingEnabled(enabled:boolean) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'TrackingEnabled',
+            value: `${enabled}`
+        });
     }
 
     setBasicTags() {
-        // TODO setBasicTags
+        this.setUserAgent();
         this.setLanguage();
     }
 
