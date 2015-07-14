@@ -41,7 +41,7 @@ class ClientEvent extends Emitter {
     }
 
     static save(data:ClientEvent) {
-        if (!window.localStorage) {
+        if (!data || !window.localStorage) {
             return;
         }
         window.localStorage.setItem(`growthanalytics:${data.getEventId}`, JSON.stringify(data));

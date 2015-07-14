@@ -38,7 +38,7 @@ class ClientTag extends Emitter {
     }
 
     static save(data:ClientTag) {
-        if (!window.localStorage) {
+        if (!data || !window.localStorage) {
             return;
         }
         window.localStorage.setItem(`growthanalytics:${data.getTagId}`, JSON.stringify(data));
