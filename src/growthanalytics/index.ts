@@ -7,6 +7,40 @@ enum TrackOption {
     ONCE, COUNTER
 }
 
+enum Gender {
+    MALE, FEMALE
+}
+
+class GenderUtils {
+
+    public static valueOf(value:string):Gender {
+
+        switch (value) {
+            case 'male':
+                return Gender.MALE;
+            case 'female':
+                return Gender.FEMALE;
+            default:
+                return undefined;
+        }
+
+    }
+
+    public static toString(gender:Gender):string {
+
+        switch (gender) {
+            case Gender.MALE:
+                return 'male';
+            case Gender.FEMALE:
+                return 'female';
+            default:
+                return undefined;
+        }
+
+    }
+
+}
+
 interface TrackParams {
     namespace?:string;
     name:string;
@@ -52,15 +86,8 @@ class GrowthAnalytics {
         this.applicationId = applicationId;
         this.credentialId = credentialId;
 
-        this.setBasicTags();
-
         console.log('initialized: GrowthAnalytics');
         this._initialized = true;
-    }
-
-    setBasicTags() {
-        // TODO setBasicTags
-        this.setLanguage();
     }
 
     track(trackParams:TrackParams) {
@@ -143,6 +170,46 @@ class GrowthAnalytics {
         return `Tag:${this.applicationId}:${namespace}:${name}`;
     }
 
+    open() {
+
+    }
+
+    close() {
+
+    }
+
+    purchase(price:number, category:string, product) {
+
+    }
+
+    setUuid() {
+
+    }
+
+    setUserrId(userId:string) {
+
+    }
+
+    setName(name:string) {
+
+    }
+
+    setAge(age:number) {
+
+    }
+
+    setGender(gender:Gender) {
+
+    }
+
+    setLevel(level:number) {
+
+    }
+
+    setDevelopment(development:boolean) {
+
+    }
+
     setLanguage() {
         if (!window.navigator.language) return;
         this.tag({
@@ -150,6 +217,23 @@ class GrowthAnalytics {
             name: 'Language',
             value: window.navigator.language
         });
+    }
+
+    setRandom() {
+
+    }
+
+    setAdvertisingId() {
+
+    }
+
+    setTrackingEnabled() {
+
+    }
+
+    setBasicTags() {
+        // TODO setBasicTags
+        this.setLanguage();
     }
 
     getEmitter():Emitter {
