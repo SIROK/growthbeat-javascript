@@ -8,9 +8,17 @@ var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIME
 
 class Client extends Emitter {
     private id:string;
+    private applicationId:string;
 
     constructor(data?:any) {
         super();
+        if (data)
+            this.setData(data);
+    }
+
+    setData(data:any) {
+        this.id = data.uuid;
+        this.applicationId = data.applicationId;
     }
 
     static load():Client {
@@ -45,6 +53,7 @@ class Client extends Emitter {
         httpClient.get('1/clients/create', opt,
             (data, code) => {
                 console.log(data, code);
+                client.setData(data);
                 client.emit('created');
             },
             (err, code) => {
