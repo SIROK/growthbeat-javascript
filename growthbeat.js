@@ -277,7 +277,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":10}],2:[function(require,module,exports){
+},{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":11}],2:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -366,7 +366,7 @@ var ClientEvent = (function (_super) {
 })(Emitter);
 module.exports = ClientEvent;
 
-},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":10}],3:[function(require,module,exports){
+},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":11}],3:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -456,7 +456,7 @@ var ClientTag = (function (_super) {
 })(Emitter);
 module.exports = ClientTag;
 
-},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":10}],4:[function(require,module,exports){
+},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":11}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var GrowthbeatHttpClient = (function () {
     function GrowthbeatHttpClient(baseUrl, timeout) {
@@ -546,7 +546,7 @@ var GrowthbeatHttpClient = (function () {
 })();
 module.exports = GrowthbeatHttpClient;
 
-},{"nanoajax":11}],5:[function(require,module,exports){
+},{"nanoajax":12}],5:[function(require,module,exports){
 var Client = require('./model/client');
 var Uuid = require('./model/uuid');
 var GrowthbeatCore = (function () {
@@ -622,7 +622,40 @@ var GrowthbeatCore = (function () {
 })();
 module.exports = GrowthbeatCore;
 
-},{"./model/client":6,"./model/uuid":7}],6:[function(require,module,exports){
+},{"./model/client":7,"./model/uuid":8}],6:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var Emitter = require('component-emitter');
+var Application = (function (_super) {
+    __extends(Application, _super);
+    function Application(data) {
+        _super.call(this);
+        if (data)
+            this.setData(data);
+    }
+    Application.prototype.setData = function (data) {
+        this.id = data.id;
+        this.name = data.name;
+        this.created = new Date(data.created);
+    };
+    Application.prototype.getId = function () {
+        return this.id;
+    };
+    Application.prototype.getName = function () {
+        return this.name;
+    };
+    Application.prototype.getCreated = function () {
+        return this.created;
+    };
+    return Application;
+})(Emitter);
+module.exports = Application;
+
+},{"component-emitter":11}],7:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -631,6 +664,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var GrowthbeatHttpClient = require('../http/growthbeat-http-client');
 var Emitter = require('component-emitter');
+var Application = require('./application');
 var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
@@ -642,8 +676,10 @@ var Client = (function (_super) {
             this.setData(data);
     }
     Client.prototype.setData = function (data) {
-        this.id = data.uuid;
-        this.applicationId = data.applicationId;
+        this.id = data.id;
+        this.application = new Application({
+            data: data.application,
+        });
     };
     Client.load = function () {
         if (!window.localStorage) {
@@ -659,6 +695,7 @@ var Client = (function (_super) {
         if (!data || !window.localStorage) {
             return;
         }
+        console.log("save client " + JSON.stringify(data));
         window.localStorage.setItem('growthbeat:client', JSON.stringify(data));
     };
     Client.create = function (applicationId, credentialId) {
@@ -682,11 +719,14 @@ var Client = (function (_super) {
     Client.prototype.getId = function () {
         return this.id;
     };
+    Client.prototype.getApplication = function () {
+        return this.application;
+    };
     return Client;
 })(Emitter);
 module.exports = Client;
 
-},{"../http/growthbeat-http-client":4,"component-emitter":10}],7:[function(require,module,exports){
+},{"../http/growthbeat-http-client":4,"./application":6,"component-emitter":11}],8:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -748,7 +788,7 @@ var Uuid = (function (_super) {
 })(Emitter);
 module.exports = Uuid;
 
-},{"../http/growthbeat-http-client":4,"component-emitter":10}],8:[function(require,module,exports){
+},{"../http/growthbeat-http-client":4,"component-emitter":11}],9:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthAnalytics = require('../growthanalytics/index');
 //import GrowthMessage = require('../growthmessage/index');
@@ -795,7 +835,7 @@ var Growthbeat = (function () {
 })();
 module.exports = Growthbeat;
 
-},{"../growthanalytics/index":1,"../growthbeat-core/index":5}],9:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/index":5}],10:[function(require,module,exports){
 (function (global){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
@@ -807,7 +847,7 @@ global.GrowthAnalytics = GrowthAnalytics;
 //global.GrowthMessage = GrowthMessage;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./growthanalytics/index":1,"./growthbeat/index":8}],10:[function(require,module,exports){
+},{"./growthanalytics/index":1,"./growthbeat/index":9}],11:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -970,7 +1010,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}
@@ -1017,4 +1057,4 @@ function setDefault(obj, key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[9]);
+},{}]},{},[10]);

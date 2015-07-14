@@ -30,12 +30,12 @@ class GrowthbeatCore {
 
         var uuid:Uuid = Uuid.create(credentialId);
         uuid.on('created', ()=> {
-          Uuid.save(uuid);
-          this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
+            Uuid.save(uuid);
+            this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
         });
 
         uuid.on('error', ()=> {
-          callback({}); //FIXME: create error
+            callback({}); //FIXME: create error
         });
 
     }

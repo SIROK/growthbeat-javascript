@@ -1,5 +1,6 @@
 import GrowthbeatHttpClient = require('../http/growthbeat-http-client');
 import Emitter = require('component-emitter');
+import Application = require('./application');
 
 var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
@@ -8,7 +9,7 @@ var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIME
 
 class Client extends Emitter {
     private id:string;
-    private applicationId:string;
+    private application:Application;
 
     constructor(data?:any) {
         super();
@@ -17,8 +18,10 @@ class Client extends Emitter {
     }
 
     setData(data:any) {
-        this.id = data.uuid;
-        this.applicationId = data.applicationId;
+        this.id = data.id;
+        this.application = new Application({
+            data: data.application,
+        });
     }
 
     static load():Client {
@@ -36,6 +39,7 @@ class Client extends Emitter {
         if (!data || !window.localStorage) {
             return;
         }
+        console.log(`save client ${JSON.stringify(data)}`);
         window.localStorage.setItem('growthbeat:client', JSON.stringify(data));
     }
 
@@ -65,6 +69,10 @@ class Client extends Emitter {
 
     getId():string {
         return this.id;
+    }
+
+    getApplication():Application {
+        return this.application;
     }
 
 }
