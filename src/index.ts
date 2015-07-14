@@ -4,12 +4,12 @@
 
 import Growthbeat = require('./growthbeat/index');
 import GrowthbeatCore = require('./growthbeat-core/index');
-import GrowthbeatAnalytics = require('./growthanalytics/index');
-import GrowthbeatMessage = require('./growthmessage/index');
+import GrowthAnalytics = require('./growthanalytics/index');
+import GrowthMessage = require('./growthmessage/index');
 
 declare var global:any;
 
 global.Growthbeat = Growthbeat;
 global.GrowthbeatCore = GrowthbeatCore;
-global.GrowthbeatAnalytics = GrowthbeatAnalytics;
-global.GrowthbeatMessage = GrowthbeatMessage;
+global.GrowthAnalytics = GrowthAnalytics;
+global.GrowthMessage = GrowthMessage;
