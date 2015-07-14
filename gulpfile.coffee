@@ -8,9 +8,10 @@ rename = require 'gulp-rename'
 sass = require 'gulp-ruby-sass'
 shell = require 'gulp-shell'
 streamify = require 'gulp-streamify'
+stripDebug = require 'gulp-strip-debug'
 uglify = require 'gulp-uglify'
-source = require 'vinyl-source-stream'
 webserver = require 'gulp-webserver'
+source = require 'vinyl-source-stream'
 
 gulp.task 'ts', shell.task [
   '$(npm bin)/tsc src/index.ts --target es5 --module commonjs --outDir lib'
@@ -48,6 +49,7 @@ gulp.task 'js', ['gfi'], ->
   .pipe(plumber())
   .pipe(source('growthbeat.js'))
   .pipe(gulp.dest('./'))
+  .pipe(streamify(stripDebug()))
   .pipe(streamify(uglify()))
   .pipe(rename({extname: '.min.js'}))
   .pipe(gulp.dest('./'))

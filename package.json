@@ -24,9 +24,10 @@
     "gulp-ruby-sass": "^1.0.5",
     "gulp-shell": "^0.4.2",
     "gulp-streamify": "0.0.5",
+    "gulp-strip-debug": "^1.0.2",
     "gulp-uglify": "^1.2.0",
+    "gulp-webserver": "~0.9.1",
     "typescript": "^1.4.1",
-    "vinyl-source-stream": "^1.1.0",
-    "gulp-webserver": "~0.9.1"
+    "vinyl-source-stream": "^1.1.0"
   }
 }
