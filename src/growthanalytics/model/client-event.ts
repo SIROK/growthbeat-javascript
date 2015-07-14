@@ -61,7 +61,7 @@ class ClientEvent extends Emitter {
         var clientEvent = new ClientEvent();
 
         // FIXME properties type
-        httpClient.get('1/client_events', opt,
+        httpClient.get('1/client_events/create', opt,
             (data, code) => {
                 console.log(data, code);
                 clientEvent.setData(data);
