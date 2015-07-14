@@ -1,14 +1,10 @@
-import GrowthbeatHttpClient = require('./http/growthbeat-http-client');
 import Client = require('./model/client');
 
-var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
-var HTTP_CLIENT_TIMEOUT = 60 * 1000;
-
 class GrowthbeatCore {
+    private client:Client = null;
+
     private static _instance:GrowthbeatCore = null;
     private _initialized:boolean = false;
-
-    private httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
     constructor() {
         if (GrowthbeatCore._instance) {
@@ -24,47 +20,31 @@ class GrowthbeatCore {
         return GrowthbeatCore._instance;
     }
 
-    initialize(applicationId:string, credentialId:string, callback:()=>void) {
+    initialize(applicationId:string, credentialId:string, callback:() => void) {
         if (this._initialized) {
             callback();
             return;
         }
 
-        // TODO: authentication
-        var client = Client.create();
+        var client = Client.load();
+        if (client != null) {
+            this.client = client;
+            callback();
+            return;
+        }
+
+        client = Client.create(applicationId, credentialId);
         client.on('created', () => {
-            console.log('created');
+            Client.save({});
+
+            console.log('initialized: GrowthbeatCore');
+            this._initialized = true;
+            callback();
         });
 
         client.on('error', () => {
-            console.log('error');
+            callback(); // FIXME: create error
         });
-
-        var opt = {
-            params: {
-                applicationId,
-                credentialId
-            },
-            dataType: 'jsonp'
-            //cors: true
-        };
-
-        this.httpClient.get('1/clients', opt,
-            (data, code) => {
-                console.log(data, code);
-                client.emit('created');
-            },
-            (err, code) => {
-                client.emit('error');
-            });
-
-        console.log('initialized: GrowthbeatCore');
-        this._initialized = true;
-        callback();
-    }
-
-    getHttpClient():GrowthbeatHttpClient {
-        return this.httpClient;
     }
 }
 
