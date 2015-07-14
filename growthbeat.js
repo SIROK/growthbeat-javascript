@@ -585,10 +585,7 @@ var GrowthbeatCore = (function () {
         client = Client.create(applicationId, credentialId);
         client.on('created', function () {
             Client.save(client);
-            GrowthAnalytics.getInstance().tag({
-                name: 'UUID',
-                value: uuid
-            });
+            GrowthAnalytics.getInstance().setUuid(uuid);
             console.log('initialized: GrowthbeatCore');
             _this._initialized = true;
             callback();

@@ -52,11 +52,7 @@ class GrowthbeatCore {
         client = Client.create(applicationId, credentialId);
         client.on('created', () => {
             Client.save(client);
-
-            GrowthAnalytics.getInstance().tag({
-                name: 'UUID',
-                value: uuid
-            });
+            GrowthAnalytics.getInstance().setUuid(uuid);
 
             console.log('initialized: GrowthbeatCore');
             this._initialized = true;
