@@ -1,4 +1,6 @@
 import GrowthbeatCore = require('../growthbeat-core/index');
+import Client = require('../growthbeat-core/model/client');
+import Uuid = require('../growthbeat-core/model/uuid');
 import ClientEvent = require('./model/client-event');
 import ClientTag = require('./model/client-tag');
 import Emitter = require('component-emitter');
@@ -119,16 +121,17 @@ class GrowthAnalytics {
             processedProperties['counter'] = counter++;
         }
 
-        var clientId = GrowthbeatCore.getInstance().getClient().getId();
-        var clientEvent:ClientEvent = ClientEvent.create(clientId, eventId, trackParams.properties, this.credentialId);
-        clientEvent.on('created', () => {
-            ClientEvent.save(clientEvent);
-            console.log(`Tracking event success. (id: %s, eventId: ${eventId}, properties: ${processedProperties})`);
-        });
+        GrowthbeatCore.getInstance().fetchClient((client:Client) => {
+            var clientEvent:ClientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, this.credentialId);
+            clientEvent.on('created', () => {
+                ClientEvent.save(clientEvent);
+                console.log(`Tracking event success. (id: %s, eventId: ${eventId}, properties: ${processedProperties})`);
+            });
 
-        clientEvent.on('error', () => {
-            // FIXME errorMessage.
-            console.log(`Tracking event fail.`);
+            clientEvent.on('error', () => {
+                // FIXME errorMessage.
+                console.log(`Tracking event fail.`);
+            });
         });
     }
 
@@ -149,17 +152,18 @@ class GrowthAnalytics {
             console.log(`Tag exists with the other value. (tagId: ${tagId}, value: ${tagParams.value})`);
         }
 
-        var clientId = GrowthbeatCore.getInstance().getClient().getId();
-        var clientTag:ClientTag = ClientTag.create(clientId, tagId, tagParams.value, this.credentialId);
-        clientTag.on('created', () => {
-            // FIXME clientTag Save
-            ClientTag.save(clientTag);
-            console.log(`Setting tag success. (tagId: ${tagId})`);
-        });
+        GrowthbeatCore.getInstance().fetchClient((client:Client) => {
+            var clientTag:ClientTag = ClientTag.create(client.getId(), tagId, tagParams.value, this.credentialId);
+            clientTag.on('created', () => {
+                // FIXME clientTag Save
+                ClientTag.save(clientTag);
+                console.log(`Setting tag success. (tagId: ${tagId})`);
+            });
 
-        clientTag.on('error', () => {
-            // FIXME errorMessage.
-            console.log(`Setting tag fail.`);
+            clientTag.on('error', () => {
+                // FIXME errorMessage.
+                console.log(`Setting tag fail.`);
+            });
         });
     }
 
@@ -214,11 +218,13 @@ class GrowthAnalytics {
         });
     }
 
-    setUuid(uuid:string) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'UUID',
-            value: uuid
+    setUuid() {
+        GrowthbeatCore.getInstance().fetchUuid((uuid:Uuid) => {
+            this.tag({
+                namespace: DEFAULT_NAMESPACE,
+                name: 'UUID',
+                value: uuid.getUuid()
+            });
         });
     }
 

@@ -67,6 +67,7 @@ var GrowthAnalytics = (function () {
         this._initialized = true;
     };
     GrowthAnalytics.prototype.track = function (trackParams) {
+        var _this = this;
         if (trackParams.namespace == null) {
             trackParams.namespace = CUSTOM_NAMESPACE;
         }
@@ -88,18 +89,20 @@ var GrowthAnalytics = (function () {
             }
             processedProperties['counter'] = counter++;
         }
-        var clientId = GrowthbeatCore.getInstance().getClient().getId();
-        var clientEvent = ClientEvent.create(clientId, eventId, trackParams.properties, this.credentialId);
-        clientEvent.on('created', function () {
-            ClientEvent.save(clientEvent);
-            console.log("Tracking event success. (id: %s, eventId: " + eventId + ", properties: " + processedProperties + ")");
-        });
-        clientEvent.on('error', function () {
-            // FIXME errorMessage.
-            console.log("Tracking event fail.");
+        GrowthbeatCore.getInstance().fetchClient(function (client) {
+            var clientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, _this.credentialId);
+            clientEvent.on('created', function () {
+                ClientEvent.save(clientEvent);
+                console.log("Tracking event success. (id: %s, eventId: " + eventId + ", properties: " + processedProperties + ")");
+            });
+            clientEvent.on('error', function () {
+                // FIXME errorMessage.
+                console.log("Tracking event fail.");
+            });
         });
     };
     GrowthAnalytics.prototype.tag = function (tagParams) {
+        var _this = this;
         if (tagParams.namespace == null) {
             tagParams.namespace = CUSTOM_NAMESPACE;
         }
@@ -113,16 +116,17 @@ var GrowthAnalytics = (function () {
             }
             console.log("Tag exists with the other value. (tagId: " + tagId + ", value: " + tagParams.value + ")");
         }
-        var clientId = GrowthbeatCore.getInstance().getClient().getId();
-        var clientTag = ClientTag.create(clientId, tagId, tagParams.value, this.credentialId);
-        clientTag.on('created', function () {
-            // FIXME clientTag Save
-            ClientTag.save(clientTag);
-            console.log("Setting tag success. (tagId: " + tagId + ")");
-        });
-        clientTag.on('error', function () {
-            // FIXME errorMessage.
-            console.log("Setting tag fail.");
+        GrowthbeatCore.getInstance().fetchClient(function (client) {
+            var clientTag = ClientTag.create(client.getId(), tagId, tagParams.value, _this.credentialId);
+            clientTag.on('created', function () {
+                // FIXME clientTag Save
+                ClientTag.save(clientTag);
+                console.log("Setting tag success. (tagId: " + tagId + ")");
+            });
+            clientTag.on('error', function () {
+                // FIXME errorMessage.
+                console.log("Setting tag fail.");
+            });
         });
     };
     GrowthAnalytics.prototype.generateEventId = function (namespace, name) {
@@ -170,11 +174,14 @@ var GrowthAnalytics = (function () {
             properties: properties
         });
     };
-    GrowthAnalytics.prototype.setUuid = function (uuid) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'UUID',
-            value: uuid
+    GrowthAnalytics.prototype.setUuid = function () {
+        var _this = this;
+        GrowthbeatCore.getInstance().fetchUuid(function (uuid) {
+            _this.tag({
+                namespace: DEFAULT_NAMESPACE,
+                name: 'UUID',
+                value: uuid.getUuid()
+            });
         });
     };
     GrowthAnalytics.prototype.setUserrId = function (userId) {
@@ -542,10 +549,10 @@ module.exports = GrowthbeatHttpClient;
 },{"nanoajax":11}],5:[function(require,module,exports){
 var Client = require('./model/client');
 var Uuid = require('./model/uuid');
-var GrowthAnalytics = require('../growthanalytics/index');
 var GrowthbeatCore = (function () {
     function GrowthbeatCore() {
         this.client = null;
+        this.uuid = null;
         this._initialized = false;
         if (GrowthbeatCore._instance) {
             throw new Error('must use the getInstance');
@@ -564,7 +571,7 @@ var GrowthbeatCore = (function () {
             callback();
             return;
         }
-        var uuid = Uuid.create();
+        var uuid = Uuid.create(credentialId);
         uuid.on('created', function () {
             Uuid.save(uuid);
             _this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
@@ -584,7 +591,6 @@ var GrowthbeatCore = (function () {
         client = Client.create(applicationId, credentialId);
         client.on('created', function () {
             Client.save(client);
-            GrowthAnalytics.getInstance().setUuid(uuid);
             console.log('initialized: GrowthbeatCore');
             _this._initialized = true;
             callback();
@@ -593,15 +599,30 @@ var GrowthbeatCore = (function () {
             callback({}); // FIXME: create error
         });
     };
-    GrowthbeatCore.prototype.getClient = function () {
-        return this.client;
+    GrowthbeatCore.prototype.fetchClient = function (callback) {
+        var _this = this;
+        var waitClient = setInterval(function () {
+            if (_this.client) {
+                clearInterval(waitClient);
+                callback(_this.client);
+            }
+        }, 100);
+    };
+    GrowthbeatCore.prototype.fetchUuid = function (callback) {
+        var _this = this;
+        var waitUuid = setInterval(function () {
+            if (_this.uuid) {
+                clearInterval(waitUuid);
+                callback(_this.uuid);
+            }
+        }, 100);
     };
     GrowthbeatCore._instance = null;
     return GrowthbeatCore;
 })();
 module.exports = GrowthbeatCore;
 
-},{"../growthanalytics/index":1,"./model/client":6,"./model/uuid":7}],6:[function(require,module,exports){
+},{"./model/client":6,"./model/uuid":7}],6:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -617,7 +638,13 @@ var Client = (function (_super) {
     __extends(Client, _super);
     function Client(data) {
         _super.call(this);
+        if (data)
+            this.setData(data);
     }
+    Client.prototype.setData = function (data) {
+        this.id = data.uuid;
+        this.applicationId = data.applicationId;
+    };
     Client.load = function () {
         if (!window.localStorage) {
             return null;
@@ -645,6 +672,7 @@ var Client = (function (_super) {
         var client = new Client();
         httpClient.get('1/clients/create', opt, function (data, code) {
             console.log(data, code);
+            client.setData(data);
             client.emit('created');
         }, function (err, code) {
             client.emit('error');
@@ -674,10 +702,12 @@ var Uuid = (function (_super) {
     __extends(Uuid, _super);
     function Uuid(data) {
         _super.call(this);
-        if (!data)
-            return;
-        this.uuid = data.uuid;
+        if (data)
+            this.setData(data);
     }
+    Uuid.prototype.setData = function (data) {
+        this.uuid = data.uuid;
+    };
     Uuid.load = function () {
         if (!window.localStorage) {
             return null;
@@ -694,14 +724,17 @@ var Uuid = (function (_super) {
         }
         window.localStorage.setItem('growthbeat:uuid', JSON.stringify(data));
     };
-    Uuid.create = function () {
+    Uuid.create = function (credentialId) {
         var opt = {
-            params: {},
+            params: {
+                credentialId: credentialId
+            },
             dataType: 'jsonp'
         };
         var uuid = new Uuid();
         httpClient.get('1/uuid/create', opt, function (data, code) {
             console.log(data, code);
+            uuid.setData(data);
             uuid.emit('created');
         }, function (err, code) {
             uuid.emit('error');
@@ -745,6 +778,7 @@ var Growthbeat = (function () {
             ;
             GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
             //GrowthMessage.getInstance().initialize(applicationId, credentialId);
+            GrowthAnalytics.getInstance().setUuid();
             console.log('initialized: Growthbeat');
             _this._initialized = true;
             callback();

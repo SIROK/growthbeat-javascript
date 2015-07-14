@@ -31,6 +31,7 @@ class Growthbeat {
 
             GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
             //GrowthMessage.getInstance().initialize(applicationId, credentialId);
+            GrowthAnalytics.getInstance().setUuid();
 
             console.log('initialized: Growthbeat');
             this._initialized = true;
