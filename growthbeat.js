@@ -312,12 +312,11 @@ var ClientEvent = (function (_super) {
         window.localStorage.setItem("growthanalytics:" + data.getEventId, JSON.stringify(data));
     };
     ClientEvent.create = function (clientId, eventId, properties, credentialId) {
-        var _properties = (properties) ? properties : {};
         var opt = {
             params: {
                 clientId: clientId,
                 eventId: eventId,
-                _properties: _properties,
+                properties: (properties) ? properties : {},
                 credentialId: credentialId
             },
             dataType: 'jsonp'
@@ -675,6 +674,8 @@ var Uuid = (function (_super) {
     __extends(Uuid, _super);
     function Uuid(data) {
         _super.call(this);
+        if (!data)
+            return;
         this.uuid = data.uuid;
     }
     Uuid.load = function () {

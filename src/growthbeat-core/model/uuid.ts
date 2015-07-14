@@ -11,6 +11,8 @@ class Uuid extends Emitter {
 
     constructor(data?:any) {
         super();
+        if (!data)
+            return;
         this.uuid = data.uuid;
     }
 
