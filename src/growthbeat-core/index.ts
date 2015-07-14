@@ -28,7 +28,7 @@ class GrowthbeatCore {
             return;
         }
 
-        var uuid:Uuid = Uuid.create();
+        var uuid:Uuid = Uuid.create(credentialId);
         uuid.on('created', ()=> {
           Uuid.save(uuid);
           this.createClient(applicationId, credentialId, uuid.getUuid(), callback);

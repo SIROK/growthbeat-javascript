@@ -11,8 +11,11 @@ class Uuid extends Emitter {
 
     constructor(data?:any) {
         super();
-        if (!data)
-            return;
+        if (data)
+            this.setData(data);
+    }
+
+    setData(data:any) {
         this.uuid = data.uuid;
     }
 
@@ -34,9 +37,11 @@ class Uuid extends Emitter {
         window.localStorage.setItem('growthbeat:uuid', JSON.stringify(data));
     }
 
-    static create():Uuid {
+    static create(credentialId:string):Uuid {
         var opt = {
-            params: {},
+            params: {
+                credentialId
+            },
             dataType: 'jsonp'
         };
 
@@ -45,6 +50,7 @@ class Uuid extends Emitter {
         httpClient.get('1/uuid/create', opt,
             (data, code) => {
                 console.log(data, code);
+                uuid.setData(data);
                 uuid.emit('created');
             },
             (err, code) => {
