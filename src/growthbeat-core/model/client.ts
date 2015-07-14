@@ -18,7 +18,7 @@ class Client extends Emitter {
             return null;
         }
         // TODO: load client from LocalStorage
-        var clientData = window.localStorage.getItem('growthbeat_client'); // FIXME: rename key name
+        var clientData = window.localStorage.getItem('growthbeat:client');
         if (clientData == null) {
             return null;
         }

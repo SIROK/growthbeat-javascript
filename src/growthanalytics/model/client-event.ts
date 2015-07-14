@@ -35,7 +35,7 @@ class ClientEvent extends Emitter {
             return null;
         }
 
-        var clientEventData = window.localStorage.getItem(eventId);
+        var clientEventData = window.localStorage.getItem('growthbeat:' + eventId);
         if (clientEventData == null) {
             return null;
         }

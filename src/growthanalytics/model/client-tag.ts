@@ -32,7 +32,7 @@ class ClientTag extends Emitter {
             return null;
         }
 
-        var clientTagData = window.localStorage.getItem(tagId);
+        var clientTagData = window.localStorage.getItem('growthbeat:' + tagId);
         if (clientTagData == null) {
             return null;
         }
