@@ -65,7 +65,7 @@ var GrowthAnalytics = (function () {
         var clientId = GrowthbeatCore.getInstance().getClient().getId();
         var clientEvent = ClientEvent.create(clientId, eventId, trackParams.properties, this.credentialId);
         clientEvent.on('created', function () {
-            ClientEvent.save({});
+            ClientEvent.save(clientEvent);
             console.log("Tracking event success. (id: %s, eventId: " + eventId + ", properties: " + processedProperties + ")");
         });
         clientEvent.on('error', function () {
@@ -91,7 +91,7 @@ var GrowthAnalytics = (function () {
         var clientTag = ClientTag.create(clientId, tagId, tagParams.value, this.credentialId);
         clientTag.on('created', function () {
             // FIXME clientTag Save
-            ClientTag.save({});
+            ClientTag.save(clientTag);
             console.log("Setting tag success. (tagId: " + tagId + ")");
         });
         clientTag.on('error', function () {
@@ -145,24 +145,23 @@ var ClientEvent = (function (_super) {
         this.clientId = data.clientId;
         this.eventId = data.eventId;
         this.properties = data.properties;
-        // FIXME DateUtils.foramt();
-        this.created = data.created;
+        this.created = new Date(data.created);
     };
     ClientEvent.load = function (eventId) {
         if (!window.localStorage) {
             return null;
         }
-        var clientEventData = window.localStorage.getItem('growthbeat:' + eventId);
+        var clientEventData = window.localStorage.getItem("growthanalytics:" + eventId);
         if (clientEventData == null) {
             return null;
         }
         return new ClientEvent(JSON.parse(clientEventData));
     };
     ClientEvent.save = function (data) {
-        if (!window.localStorage) {
+        if (!data || !window.localStorage) {
             return;
         }
-        // TODO: set ClientTag to LocalStorage
+        window.localStorage.setItem("growthanalytics:" + data.getEventId, JSON.stringify(data));
     };
     ClientEvent.create = function (clientId, eventId, properties, credentialId) {
         var opt = {
@@ -236,24 +235,23 @@ var ClientTag = (function (_super) {
         this.clientId = data.clientId;
         this.tagId = data.tagId;
         this.value = data.value;
-        // FIXME DateUtils.foramt();
-        this.created = data.created;
+        this.created = new Date(data.created);
     };
     ClientTag.load = function (tagId) {
         if (!window.localStorage) {
             return null;
         }
-        var clientTagData = window.localStorage.getItem('growthbeat:' + tagId);
+        var clientTagData = window.localStorage.getItem("growthanalytics:" + tagId);
         if (clientTagData == null) {
             return null;
         }
         return new ClientTag(JSON.parse(clientTagData));
     };
     ClientTag.save = function (data) {
-        if (!window.localStorage) {
+        if (!data || !window.localStorage) {
             return;
         }
-        // TODO: set ClientTag to LocalStorage
+        window.localStorage.setItem("growthanalytics:" + data.getTagId, JSON.stringify(data));
     };
     ClientTag.create = function (clientId, tagId, value, credentialId) {
         var opt = {
@@ -418,7 +416,7 @@ var GrowthbeatCore = (function () {
         }
         client = Client.create(applicationId, credentialId);
         client.on('created', function () {
-            Client.save({});
+            Client.save(client);
             console.log('initialized: GrowthbeatCore');
             _this._initialized = true;
             callback();
@@ -456,7 +454,6 @@ var Client = (function (_super) {
         if (!window.localStorage) {
             return null;
         }
-        // TODO: load client from LocalStorage
         var clientData = window.localStorage.getItem('growthbeat:client');
         if (clientData == null) {
             return null;
@@ -464,10 +461,10 @@ var Client = (function (_super) {
         return new Client(JSON.parse(clientData));
     };
     Client.save = function (data) {
-        if (!window.localStorage) {
+        if (!data || !window.localStorage) {
             return;
         }
-        // TODO: set client to LocalStorage
+        window.localStorage.setItem('growthbeat:client', JSON.stringify(data));
     };
     Client.create = function (applicationId, credentialId) {
         var opt = {

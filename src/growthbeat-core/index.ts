@@ -35,7 +35,7 @@ class GrowthbeatCore {
 
         client = Client.create(applicationId, credentialId);
         client.on('created', () => {
-            Client.save({});
+            Client.save(client);
 
             console.log('initialized: GrowthbeatCore');
             this._initialized = true;
