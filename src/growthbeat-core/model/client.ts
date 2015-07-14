@@ -7,6 +7,8 @@ var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
 class Client extends Emitter {
+    private id:string;
+
     constructor(data?:any) {
         super();
     }
@@ -52,6 +54,10 @@ class Client extends Emitter {
             });
 
         return client;
+    }
+
+    getId():string {
+        return this.id;
     }
 
 }

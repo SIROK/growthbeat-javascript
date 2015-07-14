@@ -1,6 +1,12 @@
-import nanoajax = require('nanoajax');
+import GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
+import Emitter = require('component-emitter');
 
-class ClientTag {
+var HTTP_CLIENT_BASE_URL = 'https://analytics.growthbeat.com/';
+var HTTP_CLIENT_TIMEOUT = 60 * 1000;
+
+var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+
+class ClientTag extends Emitter {
 
     private clientId:string;
     private tagId:string;
@@ -9,35 +15,62 @@ class ClientTag {
     private created:Date;
 
     constructor(data?:any) {
+        super();
+        if (data != null) this.setData(data);
+    }
 
-        if (data == undefined)
-            return;
-
+    setData(data:any) {
         this.clientId = data.clientId;
         this.tagId = data.tagId;
         this.value = data.value;
         // FIXME DateUtils.foramt();
         this.created = data.created;
-
     }
 
-    static create(clientId:string, tagId:string, value:string, credentialId:string, success:(clientTag:ClientTag)=>void, failure:(error:any)=>void):void {
+    static load(tagId:string):ClientTag {
+        if (!window.localStorage) {
+            return null;
+        }
+
+        var clientTagData = window.localStorage.getItem(tagId);
+        if (clientTagData == null) {
+            return null;
+        }
+        return new ClientTag(JSON.parse(clientTagData));
+    }
+
+    static save(data:any) {
+        if (!window.localStorage) {
+            return;
+        }
+        // TODO: set ClientTag to LocalStorage
+    }
+
+    static create(clientId:string, tagId:string, value:string, credentialId:string):ClientTag {
+        var opt = {
+            params: {
+                clientId,
+                tagId,
+                value,
+                credentialId
+            },
+            dataType: 'jsonp'
+        };
+
+        var clientTag = new ClientTag();
 
         // FIXME if value is null
-        // FIXME merge GrowthbeatCore
-        nanoajax.ajax({
-            url: 'https://api.analytics.growthbeat.com/1/clients/',
-            method: 'POST',
-            body: 'clientId=' + clientId
-            + '&tagId=' + tagId
-            + '&value=' + value
-            + '&credentialId=' + credentialId
-        }, (code:number, responseText:string)=> {
-            if (code !== 200)
-                failure('failure');
-            success(new ClientTag(JSON.parse(responseText)));
-        });
+        httpClient.get('1/clients', opt,
+            (data, code) => {
+                console.log(data, code);
+                clientTag.setData(data);
+                clientTag.emit('created');
+            },
+            (err, code) => {
+                clientTag.emit('error');
+            });
 
+        return clientTag;
     }
 
     getClientId():string {

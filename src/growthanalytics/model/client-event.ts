@@ -1,9 +1,15 @@
-import nanoajax = require('nanoajax');
+import GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
+import Emitter = require('component-emitter');
+
+var HTTP_CLIENT_BASE_URL = 'https://analytics.growthbeat.com/';
+var HTTP_CLIENT_TIMEOUT = 60 * 1000;
+
+var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
 interface Properties {
 }
 
-class ClientEvent {
+class ClientEvent extends Emitter {
 
     private clientId:string;
     private eventId:string;
@@ -12,35 +18,62 @@ class ClientEvent {
     private created:Date;
 
     constructor(data?:any) {
+        super();
+        if (data != null) this.setData(data);
+    }
 
-        if (data == undefined)
-            return;
-
+    setData(data:any) {
         this.clientId = data.clientId;
         this.eventId = data.eventId;
         this.properties = data.properties;
         // FIXME DateUtils.foramt();
         this.created = data.created;
-
     }
 
-    static create(clientId:string, eventId:string, properties:any, credentialId:string, success:(clientEvent:ClientEvent)=>void, failure:(error:any)=>void):void {
+    static load(eventId:string):ClientEvent {
+        if (!window.localStorage) {
+            return null;
+        }
 
-        // FIXME if value is null
-        // FIXME merge GrowthbeatCore
-        nanoajax.ajax({
-            url: 'https://api.analytics.growthbeat.com/1/clients/',
-            method: 'POST',
-            body: 'clientId=' + clientId
-            + '&eventId=' + eventId
-            + '&properties=' + properties
-            + '&credentialId=' + credentialId
-        }, (code:number, responseText:string)=> {
-            if (code !== 200)
-                failure('failure');
-            success(new ClientEvent(JSON.parse(responseText)));
-        });
+        var clientEventData = window.localStorage.getItem(eventId);
+        if (clientEventData == null) {
+            return null;
+        }
+        return new ClientEvent(JSON.parse(clientEventData));
+    }
 
+    static save(data:any) {
+        if (!window.localStorage) {
+            return;
+        }
+        // TODO: set ClientTag to LocalStorage
+    }
+
+    static create(clientId:string, eventId:string, properties:any, credentialId:string):ClientEvent {
+        var opt = {
+            params: {
+                clientId,
+                eventId,
+                properties,
+                credentialId
+            },
+            dataType: 'jsonp'
+        };
+
+        var clientEvent = new ClientEvent();
+
+        // FIXME properties type
+        httpClient.get('1/clients', opt,
+            (data, code) => {
+                console.log(data, code);
+                clientEvent.setData(data);
+                clientEvent.emit('created');
+            },
+            (err, code) => {
+                clientEvent.emit('error');
+            });
+
+        return clientEvent;
     }
 
     getClientId():string {

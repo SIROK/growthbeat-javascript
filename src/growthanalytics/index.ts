@@ -21,15 +21,13 @@ interface TagParams {
 }
 
 class GrowthAnalytics {
-    static DEFAULT_BASE_URL:string = "https://analytics.growthbeat.com/";
-
-    static DEFAULT_NAMESPACE:string = 'Default';
-    static CUSTOM_NAMESPACE:string = 'Custom';
+    static DEFAULT_NAMESPACE = 'Default';
+    static CUSTOM_NAMESPACE = 'Custom';
 
     private applicationId:string = null;
     private credentialId:string = null;
 
-    private emmiter = new Emitter();
+    private emitter = new Emitter();
 
     private static _instance:GrowthAnalytics = null;
     private _initialized:boolean = false;
@@ -51,81 +49,90 @@ class GrowthAnalytics {
     initialize(applicationId:string, credentialId:string) {
         if (this._initialized) return;
 
-        console.log('initialized: GrowthAnalytics');
-        this._initialized = true;
-
-        //GrowthbeatCore.getInstance().initialize(applicationId, credentialId);
+        this.applicationId = applicationId;
+        this.credentialId = credentialId;
 
         this.setBasicTags();
+
+        console.log('initialized: GrowthAnalytics');
+        this._initialized = true;
     }
 
     setBasicTags() {
         // TODO setBasicTags
     }
 
-    track(trackParams:TrackParams):void {
-
-        if (trackParams.namespace === undefined)
+    track(trackParams:TrackParams) {
+        if (trackParams.namespace == null) {
             trackParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
+        }
 
-        var eventId:string = this.generateEventId(trackParams.namespace, name);
+        var eventId = this.generateEventId(trackParams.namespace, name);
 
         // FIXME ClientEvent.load
-        if (trackParams.option == TrackOption.ONCE) {
+        if (trackParams.option === TrackOption.ONCE) {
             // FIXME if clientEvent exists.
         }
 
-        if (trackParams.option == TrackOption.COUNTER) {
+        if (trackParams.option === TrackOption.COUNTER) {
             // FIXME if clientEvents exists.
         }
 
-        // FIXME merge GrowthbeatCore
-        var clientId:string = 'xxxxx';
-        ClientEvent.create(clientId, eventId, trackParams.properties, this.credentialId, (clientEvent:ClientEvent) => {
-            // FIXME clientEvent Save
-        }, () => {
-            // FIXME errorMessage.
-            console.log('error');
+        var clientId = GrowthbeatCore.getInstance().getClient().getId();
+        var clientEvent = ClientTag.create(clientId, eventId, trackParams.properties, this.credentialId);
+        clientEvent.on('created', () => {
+            // FIXME clientTag Save
+            ClientTag.save({});
+            console.log(`Tracking event success.`);
         });
 
+        clientEvent.on('error', () => {
+            // FIXME errorMessage.
+            console.log(`Tracking event fail.`);
+        });
     }
 
-    public tag(tagParams:TagParams):void {
-
-        if (tagParams.namespace == undefined)
+    tag(tagParams:TagParams) {
+        if (tagParams.namespace == null) {
             tagParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
+        }
 
-        var tagId:string = this.generateTagId(tagParams.namespace, name);
+        var tagId = this.generateTagId(tagParams.namespace, name);
+        console.log(`Set tag... (tagId: ${tagId}, value: ${tagParams.value})`);
 
-        // FIXME merge GrowthbeatCore
-        var clientId:string = 'xxxxx';
-        ClientTag.create(clientId, tagId, tagParams.value, this.credentialId, (clientTag:ClientTag) => {
+        var existingClientTag = ClientTag.load(tagId);
+        if (existingClientTag != null) {
+            if (existingClientTag.getValue() === tagParams.value) {
+                console.log(`Tag exists with the same value. (tagId: ${tagId}, value: ${tagParams.value})`);
+                return;
+            }
+            console.log(`Tag exists with the other value. (tagId: ${tagId}, value: ${tagParams.value})`);
+        }
+
+        var clientId = GrowthbeatCore.getInstance().getClient().getId();
+        var clientTag = ClientTag.create(clientId, tagId, tagParams.value, this.credentialId);
+        clientTag.on('created', () => {
             // FIXME clientTag Save
-        }, () => {
-            // FIXME errorMessage.
-            console.log('error');
+            ClientTag.save({});
+            console.log(`Setting tag success. (tagId: ${tagId})`);
         });
 
+        clientTag.on('error', () => {
+            // FIXME errorMessage.
+            console.log(`Setting tag fail.`);
+        });
     }
 
     private generateEventId(namespace:string, name:string) {
-        return 'Event:' + this.applicationId + ':' + namespace + ':' + name;
+        return `Event:${this.applicationId}:${namespace}:${name}`;
     }
 
     private generateTagId(namespace:string, name:string) {
-        return 'Tag:' + this.applicationId + ':' + namespace + ':' + name;
-    }
-
-    getApplicationId():string {
-        return this.applicationId;
-    }
-
-    getCredentialId():string {
-        return this.credentialId;
+        return `Tag:${this.applicationId}:${namespace}:${name}`;
     }
 
     getEmitter():Emitter {
-        return this.emmiter;
+        return this.emitter;
     }
 }
 

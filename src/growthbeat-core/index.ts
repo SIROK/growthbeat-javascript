@@ -46,6 +46,10 @@ class GrowthbeatCore {
             callback(); // FIXME: create error
         });
     }
+
+    getClient():Client {
+        return this.client;
+    }
 }
 
 export = GrowthbeatCore;
