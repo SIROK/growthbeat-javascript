@@ -93,7 +93,7 @@ var GrowthAnalytics = (function () {
             var clientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, _this.credentialId);
             clientEvent.on('created', function () {
                 ClientEvent.save(clientEvent);
-                console.log("Tracking event success. (id: %s, eventId: " + eventId + ", properties: " + processedProperties + ")");
+                console.log("Tracking event success. (eventId: " + eventId + ", properties: " + processedProperties + ")");
             });
             clientEvent.on('error', function () {
                 // FIXME errorMessage.
@@ -184,7 +184,7 @@ var GrowthAnalytics = (function () {
             });
         });
     };
-    GrowthAnalytics.prototype.setUserrId = function (userId) {
+    GrowthAnalytics.prototype.setUserId = function (userId) {
         this.tag({
             namespace: DEFAULT_NAMESPACE,
             name: 'UserID',

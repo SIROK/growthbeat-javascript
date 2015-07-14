@@ -125,7 +125,7 @@ class GrowthAnalytics {
             var clientEvent:ClientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, this.credentialId);
             clientEvent.on('created', () => {
                 ClientEvent.save(clientEvent);
-                console.log(`Tracking event success. (id: %s, eventId: ${eventId}, properties: ${processedProperties})`);
+                console.log(`Tracking event success. (eventId: ${eventId}, properties: ${processedProperties})`);
             });
 
             clientEvent.on('error', () => {
@@ -228,7 +228,7 @@ class GrowthAnalytics {
         });
     }
 
-    setUserrId(userId:string) {
+    setUserId(userId:string) {
         this.tag({
             namespace: DEFAULT_NAMESPACE,
             name: 'UserID',

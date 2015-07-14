@@ -16,6 +16,36 @@
             }
             console.log('initialized: Growthbeat SDK');
             GrowthAnalytics.getInstance().open();
+            GrowthAnalytics.getInstance().purchase(100, 'item-01', 'life');
+            GrowthAnalytics.getInstance().setUserId('123');
+            GrowthAnalytics.getInstance().setName('TestName');
+            GrowthAnalytics.getInstance().setAge(34);
+            GrowthAnalytics.getInstance().setGender(Gender.MALE);
+            GrowthAnalytics.getInstance().setLevel(41);
+            GrowthAnalytics.getInstance().setDevelopment(true);
+            GrowthAnalytics.getInstance().setUserAgent();
+            GrowthAnalytics.getInstance().setLanguage();
+            GrowthAnalytics.getInstance().setAdvertisingId('xxxxxxxxxxxx');
+            GrowthAnalytics.getInstance().setTrackingEnabled(true);
+            GrowthAnalytics.getInstance().setBasicTags();
+
+            GrowthAnalytics.getInstance().track({
+                name: 'Test',
+                properties: {
+                    hoge: 'fuga'
+                }
+            });
+            GrowthAnalytics.getInstance().tag({
+                name: 'Test',
+                value: 'hoge'
+            });
+
+            GrowthAnalytics.getInstance().setRandom();
+
+            setTimeout(function() {
+                GrowthAnalytics.getInstance().close;
+            }, 5000);
+
         });
     }
 </script>
