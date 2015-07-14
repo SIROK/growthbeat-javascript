@@ -91,7 +91,13 @@ class GrowthbeatHttpClient {
     _makeParamsArray(obj: {key?: string;}):string[] {
         var paramsObj = (obj == null) ? {} : obj;
         var params = Object.keys(paramsObj).map((key)=> {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
+            var val = '';
+            if (typeof paramsObj[key] === 'object') {
+                val = JSON.stringify(paramsObj[key]);
+            } else {
+                val = paramsObj[key];
+            }
+            return encodeURIComponent(key) + '=' + encodeURIComponent(val);
         });
         return params;
     }
