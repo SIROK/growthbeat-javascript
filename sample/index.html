@@ -9,12 +9,13 @@
 <script src="../growthbeat.js"></script>
 <script>
     if (Growthbeat) {
-        Growthbeat.getInstance().initialize('applicationId', 'credentialId', function(err) {
+        Growthbeat.getInstance().initialize('P5C3vzoLOEijnlVj', 'btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY', function(err) {
             if (err) {
                 console.log('error: initialize Growthbeat SDK');
                 return;
             }
             console.log('initialized: Growthbeat SDK');
+            GrowthAnalytics.getInstance().open();
         });
     }
 </script>
