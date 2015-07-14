@@ -1,4 +1,6 @@
 import Client = require('./model/client');
+import Uuid = require('./model/uuid');
+import GrowthAnalytics = require('../growthanalytics/index');
 
 class GrowthbeatCore {
     private client:Client = null;
@@ -26,6 +28,20 @@ class GrowthbeatCore {
             return;
         }
 
+        var uuid:Uuid = Uuid.create();
+        uuid.on('created', ()=> {
+          Uuid.save(uuid);
+          this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
+        });
+
+        uuid.on('error', ()=> {
+          callback({}); //FIXME: create error
+        });
+
+    }
+
+    private createClient(applicationId:string, credentialId:string, uuid:string, callback:(err?:{})=> void) {
+
         var client = Client.load();
         if (client != null) {
             this.client = client;
@@ -37,6 +53,11 @@ class GrowthbeatCore {
         client.on('created', () => {
             Client.save(client);
 
+            GrowthAnalytics.getInstance().tag({
+                name: 'UUID',
+                value: uuid
+            });
+
             console.log('initialized: GrowthbeatCore');
             this._initialized = true;
             callback();
@@ -45,6 +66,7 @@ class GrowthbeatCore {
         client.on('error', () => {
             callback({}); // FIXME: create error
         });
+
     }
 
     getClient():Client {

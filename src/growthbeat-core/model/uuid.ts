@@ -14,12 +14,12 @@ class Uuid extends Emitter {
         this.uuid = data.uuid;
     }
 
-    static load():Client {
+    static load():Uuid {
         if (!window.localStorage) {
             return null;
         }
         var uuidData = window.localStorage.getItem('growthbeat:uuid');
-        if (clientData == null) {
+        if (uuidData == null) {
             return null;
         }
         return new Uuid(JSON.parse(uuidData));
@@ -32,7 +32,7 @@ class Uuid extends Emitter {
         window.localStorage.setItem('growthbeat:uuid', JSON.stringify(data));
     }
 
-    static create(applicationId:string, credentialId:string):Client {
+    static create():Uuid {
         var opt = {
             params: {},
             dataType: 'jsonp'
@@ -46,7 +46,7 @@ class Uuid extends Emitter {
                 uuid.emit('created');
             },
             (err, code) => {
-                client.emit('error');
+                uuid.emit('error');
             });
 
         return uuid;
