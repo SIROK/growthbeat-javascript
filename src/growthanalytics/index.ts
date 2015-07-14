@@ -98,7 +98,7 @@ class GrowthAnalytics {
             trackParams.namespace = CUSTOM_NAMESPACE;
         }
 
-        var eventId = this.generateEventId(trackParams.namespace, name);
+        var eventId = this.generateEventId(trackParams.namespace, trackParams.name);
         console.log(`Track event... (eventId: ${eventId})`);
 
         var existingClientEvent = ClientEvent.load(eventId);
@@ -140,7 +140,7 @@ class GrowthAnalytics {
             tagParams.namespace = CUSTOM_NAMESPACE;
         }
 
-        var tagId = this.generateTagId(tagParams.namespace, name);
+        var tagId = this.generateTagId(tagParams.namespace, tagParams.name);
         console.log(`Set tag... (tagId: ${tagId}, value: ${tagParams.value})`);
 
         var existingClientTag = ClientTag.load(tagId);

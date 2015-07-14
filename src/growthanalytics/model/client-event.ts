@@ -53,7 +53,7 @@ class ClientEvent extends Emitter {
             params: {
                 clientId,
                 eventId,
-                properties: (properties) ? properties : {},
+                parameters: (properties) ? properties : {},
                 credentialId
             },
             dataType: 'jsonp'

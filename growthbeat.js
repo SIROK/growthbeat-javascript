@@ -71,7 +71,7 @@ var GrowthAnalytics = (function () {
         if (trackParams.namespace == null) {
             trackParams.namespace = CUSTOM_NAMESPACE;
         }
-        var eventId = this.generateEventId(trackParams.namespace, name);
+        var eventId = this.generateEventId(trackParams.namespace, trackParams.name);
         console.log("Track event... (eventId: " + eventId + ")");
         var existingClientEvent = ClientEvent.load(eventId);
         var processedProperties = trackParams.properties == null ? {} : trackParams.properties;
@@ -106,7 +106,7 @@ var GrowthAnalytics = (function () {
         if (tagParams.namespace == null) {
             tagParams.namespace = CUSTOM_NAMESPACE;
         }
-        var tagId = this.generateTagId(tagParams.namespace, name);
+        var tagId = this.generateTagId(tagParams.namespace, tagParams.name);
         console.log("Set tag... (tagId: " + tagId + ", value: " + tagParams.value + ")");
         var existingClientTag = ClientTag.load(tagId);
         if (existingClientTag != null) {
@@ -323,7 +323,7 @@ var ClientEvent = (function (_super) {
             params: {
                 clientId: clientId,
                 eventId: eventId,
-                properties: (properties) ? properties : {},
+                parameters: (properties) ? properties : {},
                 credentialId: credentialId
             },
             dataType: 'jsonp'
@@ -573,6 +573,7 @@ var GrowthbeatCore = (function () {
         }
         var uuid = Uuid.create(credentialId);
         uuid.on('created', function () {
+            _this.uuid = uuid;
             Uuid.save(uuid);
             _this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
         });
