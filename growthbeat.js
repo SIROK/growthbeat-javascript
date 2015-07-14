@@ -8,6 +8,36 @@ var TrackOption;
     TrackOption[TrackOption["ONCE"] = 0] = "ONCE";
     TrackOption[TrackOption["COUNTER"] = 1] = "COUNTER";
 })(TrackOption || (TrackOption = {}));
+var Gender;
+(function (Gender) {
+    Gender[Gender["MALE"] = 0] = "MALE";
+    Gender[Gender["FEMALE"] = 1] = "FEMALE";
+})(Gender || (Gender = {}));
+var GenderUtils = (function () {
+    function GenderUtils() {
+    }
+    GenderUtils.valueOf = function (value) {
+        switch (value) {
+            case 'male':
+                return 0 /* MALE */;
+            case 'female':
+                return 1 /* FEMALE */;
+            default:
+                return undefined;
+        }
+    };
+    GenderUtils.toString = function (gender) {
+        switch (gender) {
+            case 0 /* MALE */:
+                return 'male';
+            case 1 /* FEMALE */:
+                return 'female';
+            default:
+                return undefined;
+        }
+    };
+    return GenderUtils;
+})();
 var DEFAULT_NAMESPACE = 'Default';
 var CUSTOM_NAMESPACE = 'Custom';
 var GrowthAnalytics = (function () {
@@ -15,6 +45,7 @@ var GrowthAnalytics = (function () {
         this.applicationId = null;
         this.credentialId = null;
         this.emitter = new Emitter();
+        this.openDate = null;
         this._initialized = false;
         if (GrowthAnalytics._instance) {
             throw new Error('must use the getInstance');
@@ -32,13 +63,8 @@ var GrowthAnalytics = (function () {
             return;
         this.applicationId = applicationId;
         this.credentialId = credentialId;
-        this.setBasicTags();
         console.log('initialized: GrowthAnalytics');
         this._initialized = true;
-    };
-    GrowthAnalytics.prototype.setBasicTags = function () {
-        // TODO setBasicTags
-        this.setLanguage();
     };
     GrowthAnalytics.prototype.track = function (trackParams) {
         if (trackParams.namespace == null) {
@@ -105,6 +131,103 @@ var GrowthAnalytics = (function () {
     GrowthAnalytics.prototype.generateTagId = function (namespace, name) {
         return "Tag:" + this.applicationId + ":" + namespace + ":" + name;
     };
+    GrowthAnalytics.prototype.open = function () {
+        this.openDate = new Date();
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Open',
+            option: 1 /* COUNTER */
+        });
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Install',
+            option: 0 /* ONCE */
+        });
+    };
+    GrowthAnalytics.prototype.close = function () {
+        if (!this.openDate)
+            return;
+        var time = (new Date().getTime() - this.openDate.getTime()) / 1000;
+        this.openDate = null;
+        var properties = {
+            time: "" + time
+        };
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Close',
+            properties: properties
+        });
+    };
+    GrowthAnalytics.prototype.purchase = function (price, category, product) {
+        var properties = {
+            price: "" + price,
+            category: category,
+            product: product
+        };
+        this.track({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Purchase',
+            properties: properties
+        });
+    };
+    GrowthAnalytics.prototype.setUuid = function (uuid) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UUID',
+            value: uuid
+        });
+    };
+    GrowthAnalytics.prototype.setUserrId = function (userId) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UserID',
+            value: userId
+        });
+    };
+    GrowthAnalytics.prototype.setName = function (name) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Name',
+            value: name
+        });
+    };
+    GrowthAnalytics.prototype.setAge = function (age) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Age',
+            value: "" + age
+        });
+    };
+    GrowthAnalytics.prototype.setGender = function (gender) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Gender',
+            value: GenderUtils.toString(gender),
+        });
+    };
+    GrowthAnalytics.prototype.setLevel = function (level) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Level',
+            value: "" + level
+        });
+    };
+    GrowthAnalytics.prototype.setDevelopment = function (development) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Development',
+            value: "" + development
+        });
+    };
+    GrowthAnalytics.prototype.setUserAgent = function () {
+        if (!window.navigator.userAgent)
+            return;
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UserAgent',
+            value: window.navigator.userAgent
+        });
+    };
     GrowthAnalytics.prototype.setLanguage = function () {
         if (!window.navigator.language)
             return;
@@ -114,6 +237,31 @@ var GrowthAnalytics = (function () {
             value: window.navigator.language
         });
     };
+    GrowthAnalytics.prototype.setRandom = function () {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Random',
+            value: "" + Math.random()
+        });
+    };
+    GrowthAnalytics.prototype.setAdvertisingId = function (adverTisingId) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'AdvertisingID',
+            value: adverTisingId
+        });
+    };
+    GrowthAnalytics.prototype.setTrackingEnabled = function (enabled) {
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'TrackingEnabled',
+            value: "" + enabled
+        });
+    };
+    GrowthAnalytics.prototype.setBasicTags = function () {
+        this.setUserAgent();
+        this.setLanguage();
+    };
     GrowthAnalytics.prototype.getEmitter = function () {
         return this.emitter;
     };
@@ -122,7 +270,7 @@ var GrowthAnalytics = (function () {
 })();
 module.exports = GrowthAnalytics;
 
-},{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":14}],2:[function(require,module,exports){
+},{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":10}],2:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -164,18 +312,18 @@ var ClientEvent = (function (_super) {
         window.localStorage.setItem("growthanalytics:" + data.getEventId, JSON.stringify(data));
     };
     ClientEvent.create = function (clientId, eventId, properties, credentialId) {
+        var _properties = (properties) ? properties : {};
         var opt = {
             params: {
                 clientId: clientId,
                 eventId: eventId,
-                properties: properties,
+                _properties: _properties,
                 credentialId: credentialId
             },
             dataType: 'jsonp'
         };
         var clientEvent = new ClientEvent();
-        // FIXME properties type
-        httpClient.get('1/client_events', opt, function (data, code) {
+        httpClient.get('1/client_events/create', opt, function (data, code) {
             console.log(data, code);
             clientEvent.setData(data);
             clientEvent.emit('created');
@@ -212,7 +360,7 @@ var ClientEvent = (function (_super) {
 })(Emitter);
 module.exports = ClientEvent;
 
-},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":14}],3:[function(require,module,exports){
+},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":10}],3:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -265,7 +413,7 @@ var ClientTag = (function (_super) {
         };
         var clientTag = new ClientTag();
         // FIXME if value is null
-        httpClient.get('1/client_tags', opt, function (data, code) {
+        httpClient.get('1/client_tags/create', opt, function (data, code) {
             console.log(data, code);
             clientTag.setData(data);
             clientTag.emit('created');
@@ -302,7 +450,7 @@ var ClientTag = (function (_super) {
 })(Emitter);
 module.exports = ClientTag;
 
-},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":14}],4:[function(require,module,exports){
+},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":10}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var GrowthbeatHttpClient = (function () {
     function GrowthbeatHttpClient(baseUrl, timeout) {
@@ -377,7 +525,14 @@ var GrowthbeatHttpClient = (function () {
     GrowthbeatHttpClient.prototype._makeParamsArray = function (obj) {
         var paramsObj = (obj == null) ? {} : obj;
         var params = Object.keys(paramsObj).map(function (key) {
-            return encodeURIComponent(key) + '=' + encodeURIComponent(paramsObj[key]);
+            var val = '';
+            if (typeof paramsObj[key] === 'object') {
+                val = JSON.stringify(paramsObj[key]);
+            }
+            else {
+                val = paramsObj[key];
+            }
+            return encodeURIComponent(key) + '=' + encodeURIComponent(val);
         });
         return params;
     };
@@ -385,8 +540,10 @@ var GrowthbeatHttpClient = (function () {
 })();
 module.exports = GrowthbeatHttpClient;
 
-},{"nanoajax":15}],5:[function(require,module,exports){
+},{"nanoajax":11}],5:[function(require,module,exports){
 var Client = require('./model/client');
+var Uuid = require('./model/uuid');
+var GrowthAnalytics = require('../growthanalytics/index');
 var GrowthbeatCore = (function () {
     function GrowthbeatCore() {
         this.client = null;
@@ -408,6 +565,17 @@ var GrowthbeatCore = (function () {
             callback();
             return;
         }
+        var uuid = Uuid.create();
+        uuid.on('created', function () {
+            Uuid.save(uuid);
+            _this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
+        });
+        uuid.on('error', function () {
+            callback({}); //FIXME: create error
+        });
+    };
+    GrowthbeatCore.prototype.createClient = function (applicationId, credentialId, uuid, callback) {
+        var _this = this;
         var client = Client.load();
         if (client != null) {
             this.client = client;
@@ -417,6 +585,10 @@ var GrowthbeatCore = (function () {
         client = Client.create(applicationId, credentialId);
         client.on('created', function () {
             Client.save(client);
+            GrowthAnalytics.getInstance().tag({
+                name: 'UUID',
+                value: uuid
+            });
             console.log('initialized: GrowthbeatCore');
             _this._initialized = true;
             callback();
@@ -433,7 +605,7 @@ var GrowthbeatCore = (function () {
 })();
 module.exports = GrowthbeatCore;
 
-},{"./model/client":6}],6:[function(require,module,exports){
+},{"../growthanalytics/index":1,"./model/client":6,"./model/uuid":7}],6:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -442,7 +614,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var GrowthbeatHttpClient = require('../http/growthbeat-http-client');
 var Emitter = require('component-emitter');
-var HTTP_CLIENT_BASE_URL = 'https://api.growthbeat.com/';
+var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 var Client = (function (_super) {
@@ -475,8 +647,7 @@ var Client = (function (_super) {
             dataType: 'jsonp'
         };
         var client = new Client();
-        // TODO: authentication request
-        httpClient.get('1/clients', opt, function (data, code) {
+        httpClient.get('1/clients/create', opt, function (data, code) {
             console.log(data, code);
             client.emit('created');
         }, function (err, code) {
@@ -491,10 +662,65 @@ var Client = (function (_super) {
 })(Emitter);
 module.exports = Client;
 
-},{"../http/growthbeat-http-client":4,"component-emitter":14}],7:[function(require,module,exports){
+},{"../http/growthbeat-http-client":4,"component-emitter":10}],7:[function(require,module,exports){
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var GrowthbeatHttpClient = require('../http/growthbeat-http-client');
+var Emitter = require('component-emitter');
+var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
+var HTTP_CLIENT_TIMEOUT = 60 * 1000;
+var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var Uuid = (function (_super) {
+    __extends(Uuid, _super);
+    function Uuid(data) {
+        _super.call(this);
+        this.uuid = data.uuid;
+    }
+    Uuid.load = function () {
+        if (!window.localStorage) {
+            return null;
+        }
+        var uuidData = window.localStorage.getItem('growthbeat:uuid');
+        if (uuidData == null) {
+            return null;
+        }
+        return new Uuid(JSON.parse(uuidData));
+    };
+    Uuid.save = function (data) {
+        if (!data || !window.localStorage) {
+            return;
+        }
+        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(data));
+    };
+    Uuid.create = function () {
+        var opt = {
+            params: {},
+            dataType: 'jsonp'
+        };
+        var uuid = new Uuid();
+        httpClient.get('1/uuid/create', opt, function (data, code) {
+            console.log(data, code);
+            uuid.emit('created');
+        }, function (err, code) {
+            uuid.emit('error');
+        });
+        return uuid;
+    };
+    Uuid.prototype.getUuid = function () {
+        return this.uuid;
+    };
+    return Uuid;
+})(Emitter);
+module.exports = Uuid;
+
+},{"../http/growthbeat-http-client":4,"component-emitter":10}],8:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthAnalytics = require('../growthanalytics/index');
-var GrowthMessage = require('../growthmessage/index');
+//import GrowthMessage = require('../growthmessage/index');
 var Growthbeat = (function () {
     function Growthbeat() {
         this._initialized = false;
@@ -520,7 +746,7 @@ var Growthbeat = (function () {
             }
             ;
             GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
-            GrowthMessage.getInstance().initialize(applicationId, credentialId);
+            //GrowthMessage.getInstance().initialize(applicationId, credentialId);
             console.log('initialized: Growthbeat');
             _this._initialized = true;
             callback();
@@ -537,331 +763,19 @@ var Growthbeat = (function () {
 })();
 module.exports = Growthbeat;
 
-},{"../growthanalytics/index":1,"../growthbeat-core/index":5,"../growthmessage/index":9}],8:[function(require,module,exports){
-var GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
-//var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
-var HTTP_CLIENT_BASE_URL = 'http://localhost:8000/';
-var HTTP_CLIENT_TIMEOUT = 10 * 1000;
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
-var deepExtract = function (input, name, output) {
-    if (output === void 0) { output = []; }
-    Object.keys(input).forEach(function (key) {
-        if (key === name) {
-            output.push(input[key].url);
-        }
-        else if (input[key] instanceof Object) {
-            output = deepExtract(input[key], name, output);
-        }
-    });
-    return output;
-};
-var loadImages = function (urls, callback) {
-    var count = 0;
-    if (0 >= urls.length) {
-        callback();
-    }
-    urls.forEach(function (url) {
-        var img = document.createElement('img');
-        img.onload = function () {
-            if (++count === urls.length) {
-                callback();
-            }
-        };
-        img.onerror = function () {
-            if (++count === urls.length) {
-                callback();
-            }
-        };
-        img.src = url;
-    });
-};
-var MessageAction = (function () {
-    function MessageAction(emitter) {
-        this.dispatch = emitter.emit.bind(emitter);
-    }
-    MessageAction.prototype.createMessage = function () {
-        var _this = this;
-        httpClient.get('sample/json/image-2buttons.json', {}, function (data, code) {
-            console.log(data, code);
-            var urls = deepExtract(data, 'picture');
-            loadImages(urls, function () {
-                _this.dispatch('createMessage', {
-                    data: data
-                });
-            });
-        }, function (err, code) {
-            console.log(err, code);
-        });
-    };
-    MessageAction.prototype.closeMessage = function () {
-        this.dispatch('closeMessage', {});
-    };
-    return MessageAction;
-})();
-module.exports = MessageAction;
-
-},{"../../growthbeat-core/http/growthbeat-http-client":4}],9:[function(require,module,exports){
-var GrowthAnalytics = require('../growthanalytics/index');
-var Emitter = require('component-emitter');
-var MessageAction = require('./actions/message-action');
-var MessageStore = require('./stores/message-store');
-var MessageControllerView = require('./views/message-controller-view');
-var GrowthMessage = (function () {
-    function GrowthMessage() {
-        this._initialized = false;
-        if (GrowthMessage._instance) {
-            throw new Error('must use the getInstance');
-        }
-        GrowthMessage._instance = this;
-    }
-    GrowthMessage.getInstance = function () {
-        if (GrowthMessage._instance === null) {
-            GrowthMessage._instance = new GrowthMessage();
-        }
-        return GrowthMessage._instance;
-    };
-    GrowthMessage.prototype.initialize = function (applicationId, credentialId) {
-        var _this = this;
-        if (this._initialized)
-            return;
-        var emitter = new Emitter();
-        this.messageAction = new MessageAction(emitter);
-        this.messageStore = new MessageStore(emitter);
-        GrowthAnalytics.getInstance().getEmitter().on('GrowthMessage', function (eventId) {
-            _this.messageAction.createMessage();
-        });
-        this.render();
-        console.log('initialized: GrowthMessage');
-        this._initialized = true;
-    };
-    GrowthMessage.prototype.render = function () {
-        var view = new MessageControllerView(document.body, {
-            context: {
-                messageAction: this.messageAction,
-                messageStore: this.messageStore
-            }
-        });
-        view.render();
-    };
-    GrowthMessage._instance = null;
-    return GrowthMessage;
-})();
-module.exports = GrowthMessage;
-
-},{"../growthanalytics/index":1,"./actions/message-action":8,"./stores/message-store":10,"./views/message-controller-view":12,"component-emitter":14}],10:[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var Emitter = require('component-emitter');
-var convert = function (data) {
-    var newButtons = [];
-    data.buttons.forEach(function (button) {
-        if (button.type === 'screen') {
-            data._screen = button;
-            if (button.intent.type === 'url') {
-                data._screenIsUrlType = true;
-            }
-        }
-        else if (button.type === 'close') {
-            data._close = button;
-            data._closeElClass = 'js__growthmessage-dialog__element-close';
-        }
-        else {
-            if (button.intent.type === 'url') {
-                button._isUrlType = true;
-            }
-            newButtons.push(button);
-        }
-    });
-    data.buttons = newButtons;
-    data._linkBtnClass = 'js__growthmessage-dialog__button-link';
-    data._closeBtnClass = 'js__growthmessage-dialog__button-close';
-    return data;
-};
-var MessageStore = (function (_super) {
-    __extends(MessageStore, _super);
-    function MessageStore(emitter) {
-        var _this = this;
-        _super.call(this);
-        this._message = null;
-        this.register = emitter.on.bind(emitter);
-        this.register('createMessage', function (action) {
-            _this._message = convert(action.data);
-            _this.emit('change');
-        });
-        this.register('closeMessage', function (action) {
-            _this._message = null;
-            _this.emit('change');
-        });
-    }
-    MessageStore.prototype.getMessage = function () {
-        return this._message;
-    };
-    return MessageStore;
-})(Emitter);
-module.exports = MessageStore;
-
-},{"component-emitter":14}],11:[function(require,module,exports){
-var t = require('t');
-var templates = {
-    plain: '<div class=growthmessage-dialog><div class=growthmessage-dialog__inner><div class=growthmessage-dialog__margin-left></div><div class=growthmessage-dialog__contents><div class=growthmessage-dialog-text><div class=growthmessage-dialog-text__title>{{=caption}}</div><div class=growthmessage-dialog-text__body>{{=text}}</div><div class=growthmessage-dialog-text__buttons>{{@buttons}} {{_val._isUrlType}} <a href="{{=_val.intent.url}}" class="{{=_linkBtnClass}} growthmessage-dialog-text__button">{{=_val.label}}</a> {{:_val._isUrlType}}<div class="{{=_closeBtnClass}} growthmessage-dialog-text__button">{{=_val.label}}</div>{{/_val._isUrlType}} {{/@buttons}}</div></div></div><div class=growthmessage-dialog__margin-right></div></div></div>',
-    image: '<div class="{{=_closeElClass}} growthmessage-dialog"><div class=growthmessage-dialog__inner><div class="{{=_closeElClass}} growthmessage-dialog__margin-left"></div><div class="{{=_closeElClass}} growthmessage-dialog__contents"><div class=growthmessage-dialog-image>{{_screenIsUrlType}} <a href="{{=_screen.intent.url}}" class=growthmessage-dialog-image__bg><img src="{{=picture.url}}" class="{{=_linkBtnClass}}"></a> {{:_screenIsUrlType}}<div class=growthmessage-dialog-image__bg><img src="{{=picture.url}}" class="{{_screen}}{{=_closeBtnClass}}{{/_screen}}"></div>{{/_screenIsUrlType}}<div class=growthmessage-dialog-image__buttons>{{@buttons}} {{_val._isUrlType}} <a href="{{=_val.intent.url}}" class=growthmessage-dialog-image__button><img src="{{=_val.picture.url}}" class="{{=_linkBtnClass}}"></a> {{:_val._isUrlType}}<div class=growthmessage-dialog-image__button><img src="{{=_val.picture.url}}" class="{{=_closeBtnClass}}"></div>{{/_val._isUrlType}} {{/@buttons}}</div>{{_close}} <img src="{{=_close.picture.url}}" class="{{=_closeBtnClass}} growthmessage-dialog__button-close"> {{/_close}}</div></div><div class="{{=_closeElClass}} growthmessage-dialog__margin-right"></div></div></div>'
-};
-var DialogView = (function () {
-    function DialogView(parent, props) {
-        this.parent = null;
-        this.props = null;
-        this.parent = parent;
-        this.props = props;
-    }
-    DialogView.prototype.render = function () {
-        var _this = this;
-        if (this.el == null) {
-            var html = new t(templates[this.props.message.type]).render(this.props.message);
-            var div = document.createElement('div');
-            div.innerHTML = html;
-            this.el = div.firstChild;
-            this.fitOverlay();
-            this.fitDialog();
-            this.parent.appendChild(this.el);
-        }
-        this.animateForOpen(100, function () {
-            _this.bindEvents();
-        });
-    };
-    DialogView.prototype.dispose = function () {
-        var _this = this;
-        this.animateForClose(100, function () {
-            _this.parent.removeChild(_this.el);
-            _this.el = null;
-        });
-    };
-    DialogView.prototype.animateForOpen = function (delay, callback) {
-        var _this = this;
-        setTimeout(function () {
-            var el = _this.el.getElementsByClassName('growthmessage-dialog__contents')[0];
-            el.style['transform'] = 'scale(1)';
-            el.style['-webkit-transform'] = 'scale(1)';
-            _this.el.style.opacity = 1;
-            callback();
-        }, delay);
-    };
-    DialogView.prototype.animateForClose = function (delay, callback) {
-        var _this = this;
-        setTimeout(function () {
-            _this.el.style.opacity = 0;
-            callback();
-        }, delay);
-    };
-    DialogView.prototype.fitOverlay = function () {
-        var D = document;
-        this.el.width = Math.max(D.body.offsetWidth, D.documentElement.offsetWidth, D.body.clientWidth, D.documentElement.clientWidth);
-        this.el.style.width = this.el.width + 'px';
-        this.el.height = Math.max(D.body.scrollHeight, D.documentElement.scrollHeight, D.body.offsetHeight, D.documentElement.offsetHeight, D.body.clientHeight, D.documentElement.clientHeight);
-        this.el.style.height = this.el.height + 'px';
-    };
-    DialogView.prototype.fitDialog = function () {
-        var D = document;
-        var w = window.innerWidth || D.documentElement.clientWidth || D.body.clientWidth;
-        var h = window.innerHeight || D.documentElement.clientHeight || D.body.clientHeight;
-        var t = Math.max(window.pageYOffset, D.documentElement.scrollTop);
-        var el = this.el.getElementsByClassName('growthmessage-dialog__inner')[0];
-        el.width = w;
-        el.style.width = w + 'px';
-        el.height = h;
-        el.style.height = h + 'px';
-        el.top = t;
-        el.style.top = t + 'px';
-    };
-    DialogView.prototype.bindEvents = function () {
-        var _this = this;
-        var eventName = ('ontouchstart' in window) ? 'touchend' : 'click';
-        this.el.addEventListener(eventName, function (e) {
-            var isElement = _this.hasClass(e.target, 'js__growthmessage-dialog__element-close');
-            var isButton = _this.hasClass(e.target, 'js__growthmessage-dialog__button-close');
-            var isLink = _this.hasClass(e.target, 'js__growthmessage-dialog__button-link');
-            if (!isElement && !isButton && !isLink)
-                return;
-            _this.props.context.messageAction.closeMessage();
-        });
-    };
-    DialogView.prototype.hasClass = function (el, name) {
-        return (el.className.split(' ').indexOf(name) >= 0);
-    };
-    return DialogView;
-})();
-module.exports = DialogView;
-
-},{"t":16}],12:[function(require,module,exports){
-var DialogView = require('./dialog-view');
-var styles = '.growthmessage-dialog{position:absolute;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);opacity:0;font-family:sans-serif;-webkit-transition:all .2s;transition:all .2s}.growthmessage-dialog-image__button:hover,.growthmessage-dialog__button-close:hover{opacity:.8}.growthmessage-dialog__inner{position:absolute;top:0;left:0;width:100%;max-height:85%;display:table}.growthmessage-dialog__margin-left,.growthmessage-dialog__margin-right{display:table-cell;width:7.5%}.growthmessage-dialog__contents{display:table-cell;width:85%;vertical-align:middle;-webkit-transform:scale(1.1);transform:scale(1.1);-webkit-transition:all .3s;transition:all .3s}.growthmessage-dialog-text{display:table;table-layout:fixed;box-sizing:border-box;overflow:hidden;width:100%;background-color:#eaeaea;border-top:1px solid #fff;border-radius:7px}.growthmessage-dialog-text__title{margin:21px 14px 7px;text-align:center;word-wrap:break-word;line-height:24px;font-size:17px;font-weight:700}.growthmessage-dialog-text__body{margin:0 21px 21px;text-align:center;word-wrap:break-word;line-height:17px;font-size:13px}.growthmessage-dialog-text__buttons{display:table;table-layout:fixed;width:100%;border-top:1px solid #ccc}.growthmessage-dialog-text__button{display:table-cell;box-sizing:border-box;padding:14px 7px;border-right:1px solid #ccc;text-align:center;vertical-align:middle;word-wrap:break-word;text-decoration:none;font-size:17px;color:#1678e5;-webkit-tap-highlight-color:transparent}.growthmessage-dialog-text__button:hover{background:#efefef;font-weight:700}.growthmessage-dialog-text__button:last-child{border-right:none}.growthmessage-dialog-image{position:relative;display:table;table-layout:fixed;box-sizing:border-box;width:100%;font-size:0}.growthmessage-dialog-image__bg{display:table-cell;width:100%;-webkit-tap-highlight-color:transparent}.growthmessage-dialog-image__bg img{display:block;max-width:100%;margin:0 auto;padding:0}.growthmessage-dialog-image__buttons{display:table-cell;position:absolute;bottom:0;left:0;width:100%;text-align:center;vertical-align:bottom}.growthmessage-dialog-image__button{display:block;width:100%;-webkit-tap-highlight-color:transparent}.growthmessage-dialog-image__button img{display:block;max-width:100%;margin:0 auto;padding:0}.growthmessage-dialog__button-close{position:absolute;top:0;right:0;-webkit-transform:translate(50%,-50%) scale(.5);transform:translate(50%,-50%) scale(.5);font-size:0}';
-var el = document.createElement('style');
-el.type = 'text/css';
-el.innerHTML = styles;
-document.getElementsByTagName('head')[0].appendChild(el);
-var MessageControllerView = (function () {
-    function MessageControllerView(parent, props) {
-        this.el = null;
-        this.parent = null;
-        this.props = null;
-        this.state = null;
-        this.dialogView = null;
-        this.parent = parent;
-        this.props = props;
-        this.state = {
-            message: this.props.context.messageStore.getMessage()
-        };
-        this.props.context.messageStore.on('change', this._onChange.bind(this));
-    }
-    MessageControllerView.prototype.render = function () {
-        if (this.el == null) {
-            var el = document.createElement('div');
-            el.className = 'growthmessage';
-            this.el = el;
-            this.parent.appendChild(this.el);
-        }
-        if (this.state.message == null) {
-            if (this.dialogView != null) {
-                this.dialogView.dispose();
-                this.dialogView = null;
-            }
-        }
-        else {
-            this.dialogView = new DialogView(this.el, {
-                context: this.props.context,
-                message: this.state.message
-            });
-            this.dialogView.render();
-        }
-    };
-    MessageControllerView.prototype._onChange = function () {
-        console.log('_onChange');
-        this.state = {
-            message: this.props.context.messageStore.getMessage()
-        };
-        this.render();
-    };
-    return MessageControllerView;
-})();
-module.exports = MessageControllerView;
-
-},{"./dialog-view":11}],13:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/index":5}],9:[function(require,module,exports){
 (function (global){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
 ///<reference path='../local_typings/t.d.ts' />
 var Growthbeat = require('./growthbeat/index');
 var GrowthAnalytics = require('./growthanalytics/index');
-var GrowthMessage = require('./growthmessage/index');
 global.Growthbeat = Growthbeat;
 global.GrowthAnalytics = GrowthAnalytics;
-global.GrowthMessage = GrowthMessage;
+//global.GrowthMessage = GrowthMessage;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./growthanalytics/index":1,"./growthbeat/index":7,"./growthmessage/index":9}],14:[function(require,module,exports){
+},{"./growthanalytics/index":1,"./growthbeat/index":8}],10:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -1024,7 +938,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}
@@ -1071,114 +985,4 @@ function setDefault(obj, key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],16:[function(require,module,exports){
-/*
-		 _     _
-		| |   (_)
-		| |_   _ ___
-		| __| | / __|
-		| |_ _| \__ \
-		 \__(_) |___/
-		     _/ |
-		    |__/
-
-	t.js
-	a micro-templating framework in ~400 bytes gzipped
-
-	@author  Jason Mooberry <jasonmoo@me.com>
-	@license MIT
-	@version 0.1.0
-
-*/
-(function(global) {
-
-	var blockregex = /\{\{(([@!]?)(.+?))\}\}(([\s\S]+?)(\{\{:\1\}\}([\s\S]+?))?)\{\{\/\1\}\}/g,
-		valregex = /\{\{([=%])(.+?)\}\}/g;
-
-	function t(template) {
-		this.t = template;
-	}
-
-	function scrub(val) {
-		return new Option(val).innerHTML.replace(/"/g,"&quot;");
-	}
-
-	function get_value(vars, key) {
-		var parts = key.split('.');
-		while (parts.length) {
-			if (!(parts[0] in vars)) {
-				return false;
-			}
-			vars = vars[parts.shift()];
-		}
-		return vars;
-	}
-
-	function render(fragment, vars) {
-		return fragment
-			.replace(blockregex, function(_, __, meta, key, inner, if_true, has_else, if_false) {
-
-				var val = get_value(vars,key), temp = "", i;
-
-				if (!val) {
-
-					// handle if not
-					if (meta == '!') {
-						return render(inner, vars);
-					}
-					// check for else
-					if (has_else) {
-						return render(if_false, vars);
-					}
-
-					return "";
-				}
-
-				// regular if
-				if (!meta) {
-					return render(if_true, vars);
-				}
-
-				// process array/obj iteration
-				if (meta == '@') {
-					// store any previous vars
-					// reuse existing vars
-					_ = vars._key;
-					__ = vars._val;
-					for (i in val) {
-						if (val.hasOwnProperty(i)) {
-							vars._key = i;
-							vars._val = val[i];
-							temp += render(inner, vars);
-						}
-					}
-					vars._key = _;
-					vars._val = __;
-					return temp;
-				}
-
-			})
-			.replace(valregex, function(_, meta, key) {
-				var val = get_value(vars,key);
-
-				if (val || val === 0) {
-					return meta == '%' ? scrub(val) : val;
-				}
-				return "";
-			});
-	}
-
-	t.prototype.render = function (vars) {
-		return render(this.t, vars);
-	};
-
-	if (typeof define === 'function' && define.amd) {
-		define(function() { return t; });
-	} else if (typeof exports === 'object') {
-		module.exports = t;
-	} else {
-		global.t = t;
-	}
-})(this);
-
-},{}]},{},[13]);
+},{}]},{},[9]);

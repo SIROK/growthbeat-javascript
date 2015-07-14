@@ -48,11 +48,13 @@ class ClientEvent extends Emitter {
     }
 
     static create(clientId:string, eventId:string, properties:Properties, credentialId:string):ClientEvent {
+
+        var _properties = (properties) ? properties : {};
         var opt = {
             params: {
                 clientId,
                 eventId,
-                properties,
+                _properties,
                 credentialId
             },
             dataType: 'jsonp'
@@ -60,7 +62,6 @@ class ClientEvent extends Emitter {
 
         var clientEvent = new ClientEvent();
 
-        // FIXME properties type
         httpClient.get('1/client_events/create', opt,
             (data, code) => {
                 console.log(data, code);

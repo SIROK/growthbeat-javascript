@@ -189,7 +189,7 @@ class GrowthAnalytics {
         if (!this.openDate)
             return;
 
-        var time:number = (new Date().getTime() - this.openDate) / 1000;
+        var time:number = (new Date().getTime() - this.openDate.getTime()) / 1000;
         this.openDate = null;
         var properties = {
             time: `${time}`
