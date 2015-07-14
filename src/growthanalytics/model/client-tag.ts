@@ -60,7 +60,7 @@ class ClientTag extends Emitter {
         var clientTag = new ClientTag();
 
         // FIXME if value is null
-        httpClient.get('1/clients', opt,
+        httpClient.get('1/client_tags', opt,
             (data, code) => {
                 console.log(data, code);
                 clientTag.setData(data);

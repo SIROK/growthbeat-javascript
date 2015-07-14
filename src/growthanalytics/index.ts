@@ -10,7 +10,7 @@ enum TrackOption {
 interface TrackParams {
     namespace?:string;
     name:string;
-    properties?:any;
+    properties?:{key?:string};
     option?:TrackOption;
 }
 
@@ -20,10 +20,10 @@ interface TagParams {
     value?:string;
 }
 
-class GrowthAnalytics {
-    static DEFAULT_NAMESPACE = 'Default';
-    static CUSTOM_NAMESPACE = 'Custom';
+var DEFAULT_NAMESPACE = 'Default';
+var CUSTOM_NAMESPACE = 'Custom';
 
+class GrowthAnalytics {
     private applicationId:string = null;
     private credentialId:string = null;
 
@@ -64,26 +64,37 @@ class GrowthAnalytics {
 
     track(trackParams:TrackParams) {
         if (trackParams.namespace == null) {
-            trackParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
+            trackParams.namespace = CUSTOM_NAMESPACE;
         }
 
         var eventId = this.generateEventId(trackParams.namespace, name);
+        console.log(`Track event... (eventId: ${eventId})`);
 
-        // FIXME ClientEvent.load
+        var existingClientEvent = ClientEvent.load(eventId);
+
+        var processedProperties = trackParams.properties == null ? {} : trackParams.properties;
+
         if (trackParams.option === TrackOption.ONCE) {
-            // FIXME if clientEvent exists.
+            if (existingClientEvent != null) {
+                console.log(`Event already sent with once option. (eventId: ${eventId})`);
+                return;
+            }
         }
 
         if (trackParams.option === TrackOption.COUNTER) {
-            // FIXME if clientEvents exists.
+            var counter = 0;
+            if (existingClientEvent != null && existingClientEvent.getProperties() != null) {
+                var existingProperties = existingClientEvent.getProperties();
+                counter = parseInt(existingProperties['counter'], 10);
+            }
+            processedProperties['counter'] = counter++;
         }
 
         var clientId = GrowthbeatCore.getInstance().getClient().getId();
-        var clientEvent = ClientTag.create(clientId, eventId, trackParams.properties, this.credentialId);
+        var clientEvent = ClientEvent.create(clientId, eventId, trackParams.properties, this.credentialId);
         clientEvent.on('created', () => {
-            // FIXME clientTag Save
-            ClientTag.save({});
-            console.log(`Tracking event success.`);
+            ClientEvent.save({});
+            console.log(`Tracking event success. (id: %s, eventId: ${eventId}, properties: ${processedProperties})`);
         });
 
         clientEvent.on('error', () => {
@@ -94,7 +105,7 @@ class GrowthAnalytics {
 
     tag(tagParams:TagParams) {
         if (tagParams.namespace == null) {
-            tagParams.namespace = GrowthAnalytics.CUSTOM_NAMESPACE;
+            tagParams.namespace = CUSTOM_NAMESPACE;
         }
 
         var tagId = this.generateTagId(tagParams.namespace, name);

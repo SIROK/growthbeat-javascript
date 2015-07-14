@@ -6,7 +6,7 @@ var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 
 var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
-interface Properties {
+interface Properties {key?:string
 }
 
 class ClientEvent extends Emitter {
@@ -49,7 +49,7 @@ class ClientEvent extends Emitter {
         // TODO: set ClientTag to LocalStorage
     }
 
-    static create(clientId:string, eventId:string, properties:any, credentialId:string):ClientEvent {
+    static create(clientId:string, eventId:string, properties:Properties, credentialId:string):ClientEvent {
         var opt = {
             params: {
                 clientId,
@@ -63,7 +63,7 @@ class ClientEvent extends Emitter {
         var clientEvent = new ClientEvent();
 
         // FIXME properties type
-        httpClient.get('1/clients', opt,
+        httpClient.get('1/client_events', opt,
             (data, code) => {
                 console.log(data, code);
                 clientEvent.setData(data);
@@ -96,7 +96,7 @@ class ClientEvent extends Emitter {
         return this.properties;
     }
 
-    setProperties(properties:any) {
+    setProperties(properties:Properties) {
         this.properties = properties;
     }
 
