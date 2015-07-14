@@ -60,6 +60,7 @@ class GrowthAnalytics {
 
     setBasicTags() {
         // TODO setBasicTags
+        this.setLanguage();
     }
 
     track(trackParams:TrackParams) {
@@ -140,6 +141,15 @@ class GrowthAnalytics {
 
     private generateTagId(namespace:string, name:string) {
         return `Tag:${this.applicationId}:${namespace}:${name}`;
+    }
+
+    setLanguage() {
+        if (!window.navigator.language) return;
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'Language',
+            value: window.navigator.language
+        });
     }
 
     getEmitter():Emitter {

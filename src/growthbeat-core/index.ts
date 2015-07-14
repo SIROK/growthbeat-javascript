@@ -20,7 +20,7 @@ class GrowthbeatCore {
         return GrowthbeatCore._instance;
     }
 
-    initialize(applicationId:string, credentialId:string, callback:() => void) {
+    initialize(applicationId:string, credentialId:string, callback:(err?:{}) => void) {
         if (this._initialized) {
             callback();
             return;
@@ -43,7 +43,7 @@ class GrowthbeatCore {
         });
 
         client.on('error', () => {
-            callback(); // FIXME: create error
+            callback({}); // FIXME: create error
         });
     }
 
