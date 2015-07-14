@@ -49,12 +49,11 @@ class ClientEvent extends Emitter {
 
     static create(clientId:string, eventId:string, properties:Properties, credentialId:string):ClientEvent {
 
-        var _properties = (properties) ? properties : {};
         var opt = {
             params: {
                 clientId,
                 eventId,
-                _properties,
+                properties: (properties) ? properties : {},
                 credentialId
             },
             dataType: 'jsonp'
