@@ -802,10 +802,10 @@ var Growthbeat = (function () {
         });
     };
     Growthbeat.prototype.start = function () {
-        // TODO: open GrowthAnalytics
+        GrowthAnalytics.getInstance().open();
     };
     Growthbeat.prototype.stop = function () {
-        // TODO: open GrowthMessage
+        GrowthAnalytics.getInstance().close();
     };
     Growthbeat._instance = null;
     return Growthbeat;

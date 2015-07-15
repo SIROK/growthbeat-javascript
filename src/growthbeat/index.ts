@@ -40,11 +40,11 @@ class Growthbeat {
     }
 
     start() {
-        // TODO: open GrowthAnalytics
+        GrowthAnalytics.getInstance().open();
     }
 
     stop() {
-        // TODO: open GrowthMessage
+        GrowthAnalytics.getInstance().close();
     }
 }
 
