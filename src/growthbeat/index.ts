@@ -27,7 +27,7 @@ class Growthbeat {
             if (err) {
                 callback(err);
                 return;
-            };
+            }
 
             GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
             //GrowthMessage.getInstance().initialize(applicationId, credentialId);
