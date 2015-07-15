@@ -206,10 +206,12 @@ var GrowthAnalytics = (function () {
         });
     };
     GrowthAnalytics.prototype.setGender = function (gender) {
+        if (gender !== GrowthAnalytics.Gender.MALE && gender !== GrowthAnalytics.Gender.FEMALE)
+            return;
         this.tag({
             namespace: DEFAULT_NAMESPACE,
             name: 'Gender',
-            value: GenderUtils.toString(gender),
+            value: gender,
         });
     };
     GrowthAnalytics.prototype.setLevel = function (level) {
@@ -271,6 +273,10 @@ var GrowthAnalytics = (function () {
     };
     GrowthAnalytics.prototype.getEmitter = function () {
         return this.emitter;
+    };
+    GrowthAnalytics.Gender = {
+        MALE: 'male',
+        FEMALE: 'female'
     };
     GrowthAnalytics._instance = null;
     return GrowthAnalytics;

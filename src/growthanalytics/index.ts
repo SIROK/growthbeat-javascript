@@ -9,40 +9,6 @@ enum TrackOption {
     ONCE, COUNTER
 }
 
-enum Gender {
-    MALE, FEMALE
-}
-
-class GenderUtils {
-
-    public static valueOf(value:string):Gender {
-
-        switch (value) {
-            case 'male':
-                return Gender.MALE;
-            case 'female':
-                return Gender.FEMALE;
-            default:
-                return undefined;
-        }
-
-    }
-
-    public static toString(gender:Gender):string {
-
-        switch (gender) {
-            case Gender.MALE:
-                return 'male';
-            case Gender.FEMALE:
-                return 'female';
-            default:
-                return undefined;
-        }
-
-    }
-
-}
-
 interface TrackParams {
     namespace?:string;
     name:string;
@@ -60,6 +26,11 @@ var DEFAULT_NAMESPACE = 'Default';
 var CUSTOM_NAMESPACE = 'Custom';
 
 class GrowthAnalytics {
+    static Gender = {
+        MALE: 'male',
+        FEMALE: 'female'
+    };
+
     private applicationId:string = null;
     private credentialId:string = null;
 
@@ -252,11 +223,12 @@ class GrowthAnalytics {
         });
     }
 
-    setGender(gender:Gender) {
+    setGender(gender:string) {
+        if (gender !== GrowthAnalytics.Gender.MALE && gender !== GrowthAnalytics.Gender.FEMALE) return;
         this.tag({
             namespace: DEFAULT_NAMESPACE,
             name: 'Gender',
-            value: GenderUtils.toString(gender),
+            value: gender,
         });
     }
 
