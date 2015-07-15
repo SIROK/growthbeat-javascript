@@ -19,9 +19,7 @@ class Client extends Emitter {
 
     setData(data:any) {
         this.id = data.id;
-        this.application = new Application({
-            data: data.application,
-        });
+        this.application = new Application(data.application);
     }
 
     static load():Client {

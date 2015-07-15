@@ -636,9 +636,7 @@ var Client = (function (_super) {
     }
     Client.prototype.setData = function (data) {
         this.id = data.id;
-        this.application = new Application({
-            data: data.application,
-        });
+        this.application = new Application(data.application);
     };
     Client.load = function () {
         if (!window.localStorage) {
