@@ -44,7 +44,7 @@ class GrowthbeatCore {
     private createClient(applicationId:string, credentialId:string, uuid:string, callback:(err?:{})=> void) {
 
         var client = Client.load();
-        if (client != null) {
+        if (client != null && client.getApplication().getId() == applicationId) {
             this.client = client;
             callback();
             return;

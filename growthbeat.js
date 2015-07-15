@@ -554,7 +554,7 @@ var GrowthbeatCore = (function () {
     GrowthbeatCore.prototype.createClient = function (applicationId, credentialId, uuid, callback) {
         var _this = this;
         var client = Client.load();
-        if (client != null) {
+        if (client != null && client.getApplication().getId() == applicationId) {
             this.client = client;
             callback();
             return;
