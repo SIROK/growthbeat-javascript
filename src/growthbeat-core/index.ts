@@ -15,6 +15,7 @@ var _createClient = (applicationId:string, credentialId:string, uuid:string, cal
 
     client = Client.create(applicationId, credentialId);
     client.on('created', () => {
+        _client = client;
         Client.save(client);
         console.log('initialized: GrowthbeatCore');
         _initialized = true;

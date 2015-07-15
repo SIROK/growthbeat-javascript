@@ -534,6 +534,7 @@ var _createClient = function (applicationId, credentialId, uuid, callback) {
     }
     client = Client.create(applicationId, credentialId);
     client.on('created', function () {
+        _client = client;
         Client.save(client);
         console.log('initialized: GrowthbeatCore');
         _initialized = true;
