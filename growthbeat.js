@@ -8,36 +8,6 @@ var TrackOption;
     TrackOption[TrackOption["ONCE"] = 0] = "ONCE";
     TrackOption[TrackOption["COUNTER"] = 1] = "COUNTER";
 })(TrackOption || (TrackOption = {}));
-var Gender;
-(function (Gender) {
-    Gender[Gender["MALE"] = 0] = "MALE";
-    Gender[Gender["FEMALE"] = 1] = "FEMALE";
-})(Gender || (Gender = {}));
-var GenderUtils = (function () {
-    function GenderUtils() {
-    }
-    GenderUtils.valueOf = function (value) {
-        switch (value) {
-            case 'male':
-                return 0 /* MALE */;
-            case 'female':
-                return 1 /* FEMALE */;
-            default:
-                return undefined;
-        }
-    };
-    GenderUtils.toString = function (gender) {
-        switch (gender) {
-            case 0 /* MALE */:
-                return 'male';
-            case 1 /* FEMALE */:
-                return 'female';
-            default:
-                return undefined;
-        }
-    };
-    return GenderUtils;
-})();
 var DEFAULT_NAMESPACE = 'Default';
 var CUSTOM_NAMESPACE = 'Custom';
 var GrowthAnalytics = (function () {
@@ -322,7 +292,7 @@ var ClientEvent = (function (_super) {
         if (!data || !window.localStorage) {
             return;
         }
-        window.localStorage.setItem("growthanalytics:" + data.getEventId, JSON.stringify(data));
+        window.localStorage.setItem("growthanalytics:" + data.getEventId(), JSON.stringify(data));
     };
     ClientEvent.create = function (clientId, eventId, properties, credentialId) {
         var opt = {
@@ -411,7 +381,7 @@ var ClientTag = (function (_super) {
         if (!data || !window.localStorage) {
             return;
         }
-        window.localStorage.setItem("growthanalytics:" + data.getTagId, JSON.stringify(data));
+        window.localStorage.setItem("growthanalytics:" + data.getTagId(), JSON.stringify(data));
     };
     ClientTag.create = function (clientId, tagId, value, credentialId) {
         var opt = {
