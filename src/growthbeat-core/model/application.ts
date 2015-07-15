@@ -1,14 +1,10 @@
-import Emitter = require('component-emitter');
-
-class Application extends Emitter {
+class Application {
     private id:string;
     private name:string;
     private created:Date;
 
     constructor(data?:any) {
-        super();
-        if (data)
-            this.setData(data);
+        if (data != null) this.setData(data);
     }
 
     setData(data:any) {
@@ -28,7 +24,6 @@ class Application extends Emitter {
     getCreated():Date {
         return this.created;
     }
-
 }
 
 export = Application;

@@ -582,18 +582,9 @@ var GrowthbeatCore = (function () {
 module.exports = GrowthbeatCore;
 
 },{"./model/client":7,"./model/uuid":8}],6:[function(require,module,exports){
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var Emitter = require('component-emitter');
-var Application = (function (_super) {
-    __extends(Application, _super);
+var Application = (function () {
     function Application(data) {
-        _super.call(this);
-        if (data)
+        if (data != null)
             this.setData(data);
     }
     Application.prototype.setData = function (data) {
@@ -611,10 +602,10 @@ var Application = (function (_super) {
         return this.created;
     };
     return Application;
-})(Emitter);
+})();
 module.exports = Application;
 
-},{"component-emitter":11}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
