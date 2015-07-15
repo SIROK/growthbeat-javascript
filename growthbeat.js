@@ -37,7 +37,6 @@ var GrowthAnalytics = (function () {
         this._initialized = true;
     };
     GrowthAnalytics.prototype.track = function (trackParams) {
-        var _this = this;
         if (trackParams.namespace == null) {
             trackParams.namespace = CUSTOM_NAMESPACE;
         }
@@ -59,20 +58,18 @@ var GrowthAnalytics = (function () {
             }
             processedProperties['counter'] = counter++;
         }
-        GrowthbeatCore.getInstance().fetchClient(function (client) {
-            var clientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, _this.credentialId);
-            clientEvent.on('created', function () {
-                ClientEvent.save(clientEvent);
-                console.log("Tracking event success. (eventId: " + eventId + ", properties: " + processedProperties + ")");
-            });
-            clientEvent.on('error', function () {
-                // FIXME errorMessage.
-                console.log("Tracking event fail.");
-            });
+        var client = GrowthbeatCore.getInstance().getClient();
+        var clientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, this.credentialId);
+        clientEvent.on('created', function () {
+            ClientEvent.save(clientEvent);
+            console.log("Tracking event success. (eventId: " + eventId + ", properties: " + processedProperties + ")");
+        });
+        clientEvent.on('error', function () {
+            // FIXME errorMessage.
+            console.log("Tracking event fail.");
         });
     };
     GrowthAnalytics.prototype.tag = function (tagParams) {
-        var _this = this;
         if (tagParams.namespace == null) {
             tagParams.namespace = CUSTOM_NAMESPACE;
         }
@@ -86,17 +83,16 @@ var GrowthAnalytics = (function () {
             }
             console.log("Tag exists with the other value. (tagId: " + tagId + ", value: " + tagParams.value + ")");
         }
-        GrowthbeatCore.getInstance().fetchClient(function (client) {
-            var clientTag = ClientTag.create(client.getId(), tagId, tagParams.value, _this.credentialId);
-            clientTag.on('created', function () {
-                // FIXME clientTag Save
-                ClientTag.save(clientTag);
-                console.log("Setting tag success. (tagId: " + tagId + ")");
-            });
-            clientTag.on('error', function () {
-                // FIXME errorMessage.
-                console.log("Setting tag fail.");
-            });
+        var client = GrowthbeatCore.getInstance().getClient();
+        var clientTag = ClientTag.create(client.getId(), tagId, tagParams.value, this.credentialId);
+        clientTag.on('created', function () {
+            // FIXME clientTag Save
+            ClientTag.save(clientTag);
+            console.log("Setting tag success. (tagId: " + tagId + ")");
+        });
+        clientTag.on('error', function () {
+            // FIXME errorMessage.
+            console.log("Setting tag fail.");
         });
     };
     GrowthAnalytics.prototype.generateEventId = function (namespace, name) {
@@ -145,13 +141,11 @@ var GrowthAnalytics = (function () {
         });
     };
     GrowthAnalytics.prototype.setUuid = function () {
-        var _this = this;
-        GrowthbeatCore.getInstance().fetchUuid(function (uuid) {
-            _this.tag({
-                namespace: DEFAULT_NAMESPACE,
-                name: 'UUID',
-                value: uuid.getUuid()
-            });
+        var uuid = GrowthbeatCore.getInstance().getCUuid();
+        this.tag({
+            namespace: DEFAULT_NAMESPACE,
+            name: 'UUID',
+            value: uuid.getUuid()
         });
     };
     GrowthAnalytics.prototype.setUserId = function (userId) {
@@ -576,23 +570,11 @@ var GrowthbeatCore = (function () {
             callback({}); // FIXME: create error
         });
     };
-    GrowthbeatCore.prototype.fetchClient = function (callback) {
-        var _this = this;
-        var waitClient = setInterval(function () {
-            if (_this.client) {
-                clearInterval(waitClient);
-                callback(_this.client);
-            }
-        }, 100);
+    GrowthbeatCore.prototype.getClient = function () {
+        return this.client;
     };
-    GrowthbeatCore.prototype.fetchUuid = function (callback) {
-        var _this = this;
-        var waitUuid = setInterval(function () {
-            if (_this.uuid) {
-                clearInterval(waitUuid);
-                callback(_this.uuid);
-            }
-        }, 100);
+    GrowthbeatCore.prototype.getCUuid = function () {
+        return this.uuid;
     };
     GrowthbeatCore._instance = null;
     return GrowthbeatCore;

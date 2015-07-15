@@ -64,25 +64,14 @@ class GrowthbeatCore {
         });
 
     }
-
-    fetchClient(callback:(client:Client) => void) {
-        var waitClient = setInterval(() => {
-            if (this.client) {
-                clearInterval(waitClient);
-                callback(this.client);
-            }
-        }, 100);
+    
+    getClient():Client {
+        return this.client;
     }
 
-    fetchUuid(callback:(uuid:Uuid) => void) {
-        var waitUuid = setInterval(() => {
-            if (this.uuid) {
-                clearInterval(waitUuid);
-                callback(this.uuid);
-            }
-        }, 100);
+    getCUuid():Uuid {
+        return this.uuid;
     }
-
 }
 
 export = GrowthbeatCore;
