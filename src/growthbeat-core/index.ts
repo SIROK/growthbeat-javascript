@@ -7,7 +7,7 @@ var _uuid:Uuid = null;
 
 var _createClient = (applicationId:string, credentialId:string, uuid:string, callback:(err?:{})=> void) => {
     var client = Client.load();
-    if (client != null && client.getApplication().getId() == applicationId) {
+    if (client != null && client.getApplication().id == applicationId) {
         _client = client;
         callback();
         return;

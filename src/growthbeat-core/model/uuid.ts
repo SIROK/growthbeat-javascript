@@ -6,35 +6,35 @@ var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 
 var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
+interface Data {
+    uuid:string;
+}
+
 class Uuid extends Emitter {
     private uuid:string;
 
-    constructor(data?:any) {
+    constructor(data?:Data) {
         super();
-        if (data)
-            this.setData(data);
+        if (data) this.setData(data);
     }
 
-    setData(data:any) {
+    setData(data:Data) {
         this.uuid = data.uuid;
     }
 
     static load():Uuid {
-        if (!window.localStorage) {
-            return null;
-        }
+        if (!window.localStorage) return null;
         var uuidData = window.localStorage.getItem('growthbeat:uuid');
-        if (uuidData == null) {
-            return null;
-        }
+        if (uuidData == null) return null;
         return new Uuid(JSON.parse(uuidData));
     }
 
     static save(data:Uuid) {
-        if (!data || !window.localStorage) {
-            return;
-        }
-        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(data));
+        if (!data || !window.localStorage) return;
+        var _data:Data = <Data>{
+            uuid: data.uuid
+        };
+        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(_data));
     }
 
     static create(credentialId:string):Uuid {

@@ -250,7 +250,7 @@ function getEmitter() {
 }
 exports.getEmitter = getEmitter;
 
-},{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":11}],2:[function(require,module,exports){
+},{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":10}],2:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -273,23 +273,24 @@ var ClientEvent = (function (_super) {
         this.clientId = data.clientId;
         this.eventId = data.eventId;
         this.properties = data.properties;
-        this.created = new Date(data.created);
     };
     ClientEvent.load = function (eventId) {
-        if (!window.localStorage) {
+        if (!window.localStorage)
             return null;
-        }
         var clientEventData = window.localStorage.getItem("growthanalytics:" + eventId);
-        if (clientEventData == null) {
+        if (clientEventData == null)
             return null;
-        }
         return new ClientEvent(JSON.parse(clientEventData));
     };
     ClientEvent.save = function (data) {
-        if (!data || !window.localStorage) {
+        if (!data || !window.localStorage)
             return;
-        }
-        window.localStorage.setItem("growthanalytics:" + data.getEventId(), JSON.stringify(data));
+        var _data = {
+            clientId: data.clientId,
+            eventId: data.eventId,
+            properties: data.properties
+        };
+        window.localStorage.setItem("growthanalytics:" + data.getEventId(), JSON.stringify(_data));
     };
     ClientEvent.create = function (clientId, eventId, properties, credentialId) {
         var opt = {
@@ -329,17 +330,11 @@ var ClientEvent = (function (_super) {
     ClientEvent.prototype.setProperties = function (properties) {
         this.properties = properties;
     };
-    ClientEvent.prototype.getCreated = function () {
-        return this.created;
-    };
-    ClientEvent.prototype.setCreated = function (created) {
-        this.created = created;
-    };
     return ClientEvent;
 })(Emitter);
 module.exports = ClientEvent;
 
-},{"../../growthbeat-core/http/http-client":4,"component-emitter":11}],3:[function(require,module,exports){
+},{"../../growthbeat-core/http/http-client":4,"component-emitter":10}],3:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -362,7 +357,6 @@ var ClientTag = (function (_super) {
         this.clientId = data.clientId;
         this.tagId = data.tagId;
         this.value = data.value;
-        this.created = new Date(data.created);
     };
     ClientTag.load = function (tagId) {
         if (!window.localStorage) {
@@ -375,10 +369,14 @@ var ClientTag = (function (_super) {
         return new ClientTag(JSON.parse(clientTagData));
     };
     ClientTag.save = function (data) {
-        if (!data || !window.localStorage) {
+        if (!data || !window.localStorage)
             return;
-        }
-        window.localStorage.setItem("growthanalytics:" + data.getTagId(), JSON.stringify(data));
+        var _data = {
+            clientId: data.clientId,
+            tagId: data.tagId,
+            value: data.value
+        };
+        window.localStorage.setItem("growthanalytics:" + data.getTagId(), JSON.stringify(_data));
     };
     ClientTag.create = function (clientId, tagId, value, credentialId) {
         var opt = {
@@ -419,17 +417,11 @@ var ClientTag = (function (_super) {
     ClientTag.prototype.setValue = function (value) {
         this.value = value;
     };
-    ClientTag.prototype.getCreated = function () {
-        return this.created;
-    };
-    ClientTag.prototype.setCreated = function (created) {
-        this.created = created;
-    };
     return ClientTag;
 })(Emitter);
 module.exports = ClientTag;
 
-},{"../../growthbeat-core/http/http-client":4,"component-emitter":11}],4:[function(require,module,exports){
+},{"../../growthbeat-core/http/http-client":4,"component-emitter":10}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
 var HttpClient = (function () {
     function HttpClient(baseUrl, timeout) {
@@ -519,7 +511,7 @@ var HttpClient = (function () {
 })();
 module.exports = HttpClient;
 
-},{"nanoajax":12}],5:[function(require,module,exports){
+},{"nanoajax":11}],5:[function(require,module,exports){
 var Client = require('./model/client');
 var Uuid = require('./model/uuid');
 var _initialized = false;
@@ -527,7 +519,7 @@ var _client = null;
 var _uuid = null;
 var _createClient = function (applicationId, credentialId, uuid, callback) {
     var client = Client.load();
-    if (client != null && client.getApplication().getId() == applicationId) {
+    if (client != null && client.getApplication().id == applicationId) {
         _client = client;
         callback();
         return;
@@ -569,31 +561,7 @@ function getCUuid() {
 }
 exports.getCUuid = getCUuid;
 
-},{"./model/client":7,"./model/uuid":8}],6:[function(require,module,exports){
-var Application = (function () {
-    function Application(data) {
-        if (data != null)
-            this.setData(data);
-    }
-    Application.prototype.setData = function (data) {
-        this.id = data.id;
-        this.name = data.name;
-        this.created = new Date(data.created);
-    };
-    Application.prototype.getId = function () {
-        return this.id;
-    };
-    Application.prototype.getName = function () {
-        return this.name;
-    };
-    Application.prototype.getCreated = function () {
-        return this.created;
-    };
-    return Application;
-})();
-module.exports = Application;
-
-},{}],7:[function(require,module,exports){
+},{"./model/client":6,"./model/uuid":7}],6:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -602,7 +570,6 @@ var __extends = this.__extends || function (d, b) {
 };
 var HttpClient = require('../http/http-client');
 var Emitter = require('component-emitter');
-var Application = require('./application');
 var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
@@ -615,24 +582,28 @@ var Client = (function (_super) {
     }
     Client.prototype.setData = function (data) {
         this.id = data.id;
-        this.application = new Application(data.application);
+        this.application = data.application;
     };
     Client.load = function () {
-        if (!window.localStorage) {
+        if (!window.localStorage)
             return null;
-        }
         var clientData = window.localStorage.getItem('growthbeat:client');
-        if (clientData == null) {
+        if (clientData == null)
             return null;
-        }
         return new Client(JSON.parse(clientData));
     };
     Client.save = function (data) {
-        if (!data || !window.localStorage) {
+        if (!data || !window.localStorage)
             return;
-        }
-        console.log("save client " + JSON.stringify(data));
-        window.localStorage.setItem('growthbeat:client', JSON.stringify(data));
+        var _data = {
+            id: data.id,
+            application: {
+                id: data.application.id,
+                name: data.application.name
+            }
+        };
+        console.log("save client " + JSON.stringify(_data));
+        window.localStorage.setItem('growthbeat:client', JSON.stringify(_data));
     };
     Client.create = function (applicationId, credentialId) {
         var opt = {
@@ -662,7 +633,7 @@ var Client = (function (_super) {
 })(Emitter);
 module.exports = Client;
 
-},{"../http/http-client":4,"./application":6,"component-emitter":11}],8:[function(require,module,exports){
+},{"../http/http-client":4,"component-emitter":10}],7:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -685,20 +656,20 @@ var Uuid = (function (_super) {
         this.uuid = data.uuid;
     };
     Uuid.load = function () {
-        if (!window.localStorage) {
+        if (!window.localStorage)
             return null;
-        }
         var uuidData = window.localStorage.getItem('growthbeat:uuid');
-        if (uuidData == null) {
+        if (uuidData == null)
             return null;
-        }
         return new Uuid(JSON.parse(uuidData));
     };
     Uuid.save = function (data) {
-        if (!data || !window.localStorage) {
+        if (!data || !window.localStorage)
             return;
-        }
-        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(data));
+        var _data = {
+            uuid: data.uuid
+        };
+        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(_data));
     };
     Uuid.create = function (credentialId) {
         var opt = {
@@ -724,7 +695,7 @@ var Uuid = (function (_super) {
 })(Emitter);
 module.exports = Uuid;
 
-},{"../http/http-client":4,"component-emitter":11}],9:[function(require,module,exports){
+},{"../http/http-client":4,"component-emitter":10}],8:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthAnalytics = require('../growthanalytics/index');
 var _initialized = false;
@@ -756,7 +727,7 @@ function stop() {
 }
 exports.stop = stop;
 
-},{"../growthanalytics/index":1,"../growthbeat-core/index":5}],10:[function(require,module,exports){
+},{"../growthanalytics/index":1,"../growthbeat-core/index":5}],9:[function(require,module,exports){
 (function (global){
 ///<reference path='../local_typings/nanoajax.d.ts' />
 ///<reference path='../local_typings/component-emitter.d.ts' />
@@ -768,7 +739,7 @@ global.GrowthAnalytics = GrowthAnalytics;
 //global.GrowthMessage = GrowthMessage;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./growthanalytics/index":1,"./growthbeat/index":9}],11:[function(require,module,exports){
+},{"./growthanalytics/index":1,"./growthbeat/index":8}],10:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -931,7 +902,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 (function (global){
 exports.ajax = function (params, callback) {
   if (typeof params == 'string') params = {url: params}
@@ -978,4 +949,4 @@ function setDefault(obj, key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}]},{},[10]);
+},{}]},{},[9]);

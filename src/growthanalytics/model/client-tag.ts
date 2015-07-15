@@ -6,23 +6,27 @@ var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 
 var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
+interface Data {
+    clientId:string;
+    tagId:string;
+    value:string;
+}
+
 class ClientTag extends Emitter {
 
     private clientId:string;
     private tagId:string;
     private value:string;
-    private created:Date;
 
-    constructor(data?:any) {
+    constructor(data?:Data) {
         super();
         if (data != null) this.setData(data);
     }
 
-    setData(data:any) {
+    setData(data:Data) {
         this.clientId = data.clientId;
         this.tagId = data.tagId;
         this.value = data.value;
-        this.created = new Date(data.created);
     }
 
     static load(tagId:string):ClientTag {
@@ -38,10 +42,13 @@ class ClientTag extends Emitter {
     }
 
     static save(data:ClientTag) {
-        if (!data || !window.localStorage) {
-            return;
-        }
-        window.localStorage.setItem(`growthanalytics:${data.getTagId()}`, JSON.stringify(data));
+        if (!data || !window.localStorage) return;
+        var _data:Data = <Data>{
+            clientId: data.clientId,
+            tagId: data.tagId,
+            value: data.value
+        };
+        window.localStorage.setItem(`growthanalytics:${data.getTagId()}`, JSON.stringify(_data));
     }
 
     static create(clientId:string, tagId:string, value:string, credentialId:string):ClientTag {
@@ -94,15 +101,6 @@ class ClientTag extends Emitter {
     setValue(value:string) {
         this.value = value;
     }
-
-    getCreated():Date {
-        return this.created;
-    }
-
-    setCreated(created:Date) {
-        this.created = created;
-    }
-
 }
 
 export = ClientTag;
