@@ -1,0 +1,58 @@
+{
+  "text": "いつもご利用いただきありがとうございます。",
+  "caption": "アプリ評価のお願い",
+  "created": "2015-04-01T01:48:30+0000",
+  "eventId": "Event:P5C3vzoLOEijnlVj:Default:Open",
+  "frequency": 1,
+  "segmentId": "Segment:P5C3vzoLOEijnlVj:Default:All",
+  "cap": 1000,
+  "archived": null,
+  "version": 0,
+  "id": "P8Z3IeEsiXex0KbU",
+  "type": "plain",
+  "task": {
+    "created": "2015-04-01T01:48:30+0000",
+    "applicationId": "P5C3vzoLOEijnlVj",
+    "disabled": false,
+    "availableFrom": "2015-04-01T01:47:22+0000",
+    "availableTo": "2015-04-30T01:47:22+0000",
+    "updated": "2015-05-13T05:42:53+0000",
+    "description": "アプリの評価を上げるためのメッセージです。",
+    "name": "レビュー依頼",
+    "id": "P8Z3IdUQD03dtko0",
+    "messages": null
+  },
+  "buttons": [
+    {
+      "label": "評価する",
+      "created": "2015-04-01T01:48:30+0000",
+      "type": "plain",
+      "message": null,
+      "intent": {
+        "url": "https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=472931728&pageNumber=0&sortOrdering=1&type=Purple+Software&mt=8",
+        "created": "2015-04-01T01:45:37+0000",
+        "applicationId": "P5C3vzoLOEijnlVj",
+        "description": "レビュー画面へ遷移させます",
+        "name": "レビュー画面への遷移",
+        "id": "P8Z2ZOk4cyDJy6I8",
+        "type": "url"
+      },
+      "id": "P8Z3IfprwKPok5E8"
+    },
+    {
+      "label": "後で",
+      "created": "2015-04-01T01:48:30+0000",
+      "type": "plain",
+      "message": null,
+      "intent": {
+        "created": "2015-04-01T01:45:47+0000",
+        "applicationId": "P5C3vzoLOEijnlVj",
+        "description": "何もしません",
+        "name": "なし",
+        "id": "P8Z2cC64j2m6Oq5b",
+        "type": "noop"
+      },
+      "id": "P8Z3IgxiPSqmlVP5"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Testing For growthmessage.js</title>
+</head>
+<body>
+<script src="../growthbeat.js"></script>
+<script>
+    Growthbeat.init({
+        applicationId: 'P5C3vzoLOEijnlVj',
+        credentialId: 'btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY'
+    }, function(err) {
+        if (err) {
+            console.log('error: initialize Growthbeat SDK');
+            return;
+        }
+        console.log('initialized: Growthbeat SDK');
+        GrowthAnalytics.open();
+        GrowthAnalytics.purchase(100, 'item-01', 'life');
+        GrowthAnalytics.setUserId('123');
+        GrowthAnalytics.setName('TestName');
+        GrowthAnalytics.setAge(34);
+        GrowthAnalytics.setGender(GrowthAnalytics.Gender.MALE);
+        GrowthAnalytics.setLevel(41);
+        GrowthAnalytics.setDevelopment(true);
+        GrowthAnalytics.setUserAgent();
+        GrowthAnalytics.setLanguage();
+        GrowthAnalytics.setAdvertisingId('xxxxxxxxxxxx');
+        GrowthAnalytics.setTrackingEnabled(true);
+        GrowthAnalytics.setBasicTags();
+
+        GrowthAnalytics.track({
+            name: 'Test',
+            properties: {
+                hoge: 'fuga'
+            }
+        });
+        GrowthAnalytics.tag({
+            name: 'Test',
+            value: 'hoge'
+        });
+
+        GrowthAnalytics.setRandom();
+
+        setTimeout(function() {
+            GrowthAnalytics.close;
+        }, 5000);
+
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "growthbeat-javascript",
+  "version": "0.1.0",
+  "description": "Growthbeat SDK for JavaScript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SIROK/growthbeat-javascript"
+  },
+  "author": "SIROK, Inc.",
+  "dependencies": {
+    "component-emitter": "^1.2.0",
+    "nanoajax": "^0.3.1",
+    "t": "sangotaro/t.js"
+  },
+  "devDependencies": {
+    "browserify": "^10.2.4",
+    "coffee-script": "^1.9.3",
+    "gulp": "^3.9.0",
+    "gulp-file-insert": "^1.0.2",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-minify-html": "^1.0.3",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-ruby-sass": "^1.0.5",
+    "gulp-shell": "^0.4.2",
+    "gulp-streamify": "0.0.5",
+    "gulp-strip-debug": "^1.0.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-webserver": "~0.9.1",
+    "typescript": "^1.4.1",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
