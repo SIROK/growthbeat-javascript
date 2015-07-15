@@ -8,46 +8,47 @@
 <body>
 <script src="../growthbeat.js"></script>
 <script>
-    if (Growthbeat) {
-        Growthbeat.getInstance().initialize('P5C3vzoLOEijnlVj', 'btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY', function(err) {
-            if (err) {
-                console.log('error: initialize Growthbeat SDK');
-                return;
+    Growthbeat.init({
+        applicationId: 'P5C3vzoLOEijnlVj',
+        credentialId: 'btFlFAitBJ1CBdL3IR3ROnhLYbeqmLlY'
+    }, function(err) {
+        if (err) {
+            console.log('error: initialize Growthbeat SDK');
+            return;
+        }
+        console.log('initialized: Growthbeat SDK');
+        GrowthAnalytics.open();
+        GrowthAnalytics.purchase(100, 'item-01', 'life');
+        GrowthAnalytics.setUserId('123');
+        GrowthAnalytics.setName('TestName');
+        GrowthAnalytics.setAge(34);
+        GrowthAnalytics.setGender(GrowthAnalytics.Gender.MALE);
+        GrowthAnalytics.setLevel(41);
+        GrowthAnalytics.setDevelopment(true);
+        GrowthAnalytics.setUserAgent();
+        GrowthAnalytics.setLanguage();
+        GrowthAnalytics.setAdvertisingId('xxxxxxxxxxxx');
+        GrowthAnalytics.setTrackingEnabled(true);
+        GrowthAnalytics.setBasicTags();
+
+        GrowthAnalytics.track({
+            name: 'Test',
+            properties: {
+                hoge: 'fuga'
             }
-            console.log('initialized: Growthbeat SDK');
-            GrowthAnalytics.getInstance().open();
-            GrowthAnalytics.getInstance().purchase(100, 'item-01', 'life');
-            GrowthAnalytics.getInstance().setUserId('123');
-            GrowthAnalytics.getInstance().setName('TestName');
-            GrowthAnalytics.getInstance().setAge(34);
-            GrowthAnalytics.getInstance().setGender(GrowthAnalytics.Gender.MALE);
-            GrowthAnalytics.getInstance().setLevel(41);
-            GrowthAnalytics.getInstance().setDevelopment(true);
-            GrowthAnalytics.getInstance().setUserAgent();
-            GrowthAnalytics.getInstance().setLanguage();
-            GrowthAnalytics.getInstance().setAdvertisingId('xxxxxxxxxxxx');
-            GrowthAnalytics.getInstance().setTrackingEnabled(true);
-            GrowthAnalytics.getInstance().setBasicTags();
-
-            GrowthAnalytics.getInstance().track({
-                name: 'Test',
-                properties: {
-                    hoge: 'fuga'
-                }
-            });
-            GrowthAnalytics.getInstance().tag({
-                name: 'Test',
-                value: 'hoge'
-            });
-
-            GrowthAnalytics.getInstance().setRandom();
-
-            setTimeout(function() {
-                GrowthAnalytics.getInstance().close;
-            }, 5000);
-
         });
-    }
+        GrowthAnalytics.tag({
+            name: 'Test',
+            value: 'hoge'
+        });
+
+        GrowthAnalytics.setRandom();
+
+        setTimeout(function() {
+            GrowthAnalytics.close;
+        }, 5000);
+
+    });
 </script>
 </body>
 </html>

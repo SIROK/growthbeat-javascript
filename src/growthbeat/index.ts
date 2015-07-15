@@ -2,50 +2,39 @@ import GrowthbeatCore = require('../growthbeat-core/index');
 import GrowthAnalytics = require('../growthanalytics/index');
 //import GrowthMessage = require('../growthmessage/index');
 
-class Growthbeat {
-    private static _instance:Growthbeat = null;
-    private _initialized:boolean = false;
-
-    constructor() {
-        if (Growthbeat._instance) {
-            throw new Error('must use the getInstance');
-        }
-        Growthbeat._instance = this;
-    }
-
-    static getInstance():Growthbeat {
-        if (Growthbeat._instance === null) {
-            Growthbeat._instance = new Growthbeat();
-        }
-        return Growthbeat._instance;
-    }
-
-    initialize(applicationId:string, credentialId:string, callback:(err?:{})=>void) {
-        if (this._initialized) return;
-
-        GrowthbeatCore.getInstance().initialize(applicationId, credentialId, (err) => {
-            if (err) {
-                callback(err);
-                return;
-            }
-
-            GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
-            //GrowthMessage.getInstance().initialize(applicationId, credentialId);
-            GrowthAnalytics.getInstance().setUuid();
-
-            console.log('initialized: Growthbeat');
-            this._initialized = true;
-            callback();
-        });
-    }
-
-    start() {
-        GrowthAnalytics.getInstance().open();
-    }
-
-    stop() {
-        GrowthAnalytics.getInstance().close();
-    }
+interface Params {
+    applicationId:string;
+    credentialId:string;
 }
 
-export = Growthbeat;
+var _initialized = false;
+
+export function init(params:Params, callback:(err?:{})=>void) {
+    if (_initialized) return;
+
+    var applicationId = params.applicationId;
+    var credentialId = params.credentialId;
+
+    GrowthbeatCore.init(applicationId, credentialId, (err) => {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        GrowthAnalytics.init(applicationId, credentialId);
+        //GrowthMessage.init(applicationId, credentialId);
+        GrowthAnalytics.setUuid();
+
+        console.log('initialized: Growthbeat');
+        _initialized = true;
+        callback();
+    });
+}
+
+export function start() {
+    GrowthAnalytics.open();
+}
+
+export function stop() {
+    GrowthAnalytics.close();
+}

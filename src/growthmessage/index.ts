@@ -4,54 +4,34 @@ import MessageAction = require('./actions/message-action');
 import MessageStore = require('./stores/message-store');
 import MessageControllerView = require('./views/message-controller-view');
 
-class GrowthMessage {
-    messageAction:MessageAction;
-    messageStore:MessageStore;
+var _initialized = false;
 
-    private static _instance:GrowthMessage = null;
-    private _initialized:boolean = false;
+var _messageAction:MessageAction = null;
+var _messageStore:MessageStore = null;
 
-    constructor() {
-        if (GrowthMessage._instance) {
-            throw new Error('must use the getInstance');
+var _render = () => {
+    var view = new MessageControllerView(document.body, {
+        context: {
+            messageAction: _messageAction,
+            messageStore: _messageStore
         }
-        GrowthMessage._instance = this;
-    }
+    });
+    view.render();
+};
 
-    static getInstance():GrowthMessage {
-        if (GrowthMessage._instance === null) {
-            GrowthMessage._instance = new GrowthMessage();
-        }
-        return GrowthMessage._instance;
-    }
+export function init(applicationId:string, credentialId:string) {
+    if (_initialized) return;
 
-    initialize(applicationId:string, credentialId:string) {
-        if (this._initialized) return;
+    var emitter = new Emitter();
+    _messageAction = new MessageAction(emitter);
+    _messageStore = new MessageStore(emitter);
 
-        var emitter = new Emitter();
-        this.messageAction = new MessageAction(emitter);
-        this.messageStore = new MessageStore(emitter);
+    GrowthAnalytics.getEmitter().on('GrowthMessage', (eventId:string) => {
+        _messageAction.createMessage();
+    });
 
-        GrowthAnalytics.getInstance().getEmitter().on('GrowthMessage', (eventId:string) => {
-            this.messageAction.createMessage();
-        });
+    _render();
 
-        this.render();
-
-        console.log('initialized: GrowthMessage');
-        this._initialized = true;
-    }
-
-    render() {
-        var view = new MessageControllerView(document.body, {
-            context: {
-                messageAction: this.messageAction,
-                messageStore: this.messageStore
-            }
-        });
-        view.render();
-    }
-
+    console.log('initialized: GrowthMessage');
+    _initialized = true;
 }
-
-export = GrowthMessage;

@@ -10,242 +10,245 @@ var TrackOption;
 })(TrackOption || (TrackOption = {}));
 var DEFAULT_NAMESPACE = 'Default';
 var CUSTOM_NAMESPACE = 'Custom';
-var GrowthAnalytics = (function () {
-    function GrowthAnalytics() {
-        this.applicationId = null;
-        this.credentialId = null;
-        this.emitter = new Emitter();
-        this.openDate = null;
-        this._initialized = false;
-        if (GrowthAnalytics._instance) {
-            throw new Error('must use the getInstance');
-        }
-        GrowthAnalytics._instance = this;
+var _initialized = false;
+var _applicationId = null;
+var _credentialId = null;
+var _emitter = new Emitter();
+var _openDate = null;
+exports.Gender = {
+    MALE: 'male',
+    FEMALE: 'female'
+};
+var _generateEventId = function (namespace, name) {
+    return "Event:" + _applicationId + ":" + namespace + ":" + name;
+};
+var _generateTagId = function (namespace, name) {
+    return "Tag:" + _applicationId + ":" + namespace + ":" + name;
+};
+function init(applicationId, credentialId) {
+    if (_initialized)
+        return;
+    _applicationId = applicationId;
+    _credentialId = credentialId;
+    console.log('initialized: GrowthAnalytics');
+    _initialized = true;
+}
+exports.init = init;
+function track(trackParams) {
+    if (trackParams.namespace == null) {
+        trackParams.namespace = CUSTOM_NAMESPACE;
     }
-    GrowthAnalytics.getInstance = function () {
-        if (GrowthAnalytics._instance === null) {
-            GrowthAnalytics._instance = new GrowthAnalytics();
-        }
-        return GrowthAnalytics._instance;
-    };
-    GrowthAnalytics.prototype.initialize = function (applicationId, credentialId) {
-        if (this._initialized)
+    var eventId = _generateEventId(trackParams.namespace, trackParams.name);
+    console.log("Track event... (eventId: " + eventId + ")");
+    var existingClientEvent = ClientEvent.load(eventId);
+    var processedProperties = trackParams.properties == null ? {} : trackParams.properties;
+    if (trackParams.option === 0 /* ONCE */) {
+        if (existingClientEvent != null) {
+            console.log("Event already sent with once option. (eventId: " + eventId + ")");
             return;
-        this.applicationId = applicationId;
-        this.credentialId = credentialId;
-        console.log('initialized: GrowthAnalytics');
-        this._initialized = true;
-    };
-    GrowthAnalytics.prototype.track = function (trackParams) {
-        if (trackParams.namespace == null) {
-            trackParams.namespace = CUSTOM_NAMESPACE;
         }
-        var eventId = this.generateEventId(trackParams.namespace, trackParams.name);
-        console.log("Track event... (eventId: " + eventId + ")");
-        var existingClientEvent = ClientEvent.load(eventId);
-        var processedProperties = trackParams.properties == null ? {} : trackParams.properties;
-        if (trackParams.option === 0 /* ONCE */) {
-            if (existingClientEvent != null) {
-                console.log("Event already sent with once option. (eventId: " + eventId + ")");
-                return;
-            }
+    }
+    if (trackParams.option === 1 /* COUNTER */) {
+        var counter = 0;
+        if (existingClientEvent != null && existingClientEvent.getProperties() != null) {
+            var existingProperties = existingClientEvent.getProperties();
+            counter = parseInt(existingProperties['counter'], 10);
         }
-        if (trackParams.option === 1 /* COUNTER */) {
-            var counter = 0;
-            if (existingClientEvent != null && existingClientEvent.getProperties() != null) {
-                var existingProperties = existingClientEvent.getProperties();
-                counter = parseInt(existingProperties['counter'], 10);
-            }
-            processedProperties['counter'] = counter++;
-        }
-        var client = GrowthbeatCore.getInstance().getClient();
-        var clientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, this.credentialId);
-        clientEvent.on('created', function () {
-            ClientEvent.save(clientEvent);
-            console.log("Tracking event success. (eventId: " + eventId + ", properties: " + processedProperties + ")");
-        });
-        clientEvent.on('error', function () {
-            // FIXME errorMessage.
-            console.log("Tracking event fail.");
-        });
-    };
-    GrowthAnalytics.prototype.tag = function (tagParams) {
-        if (tagParams.namespace == null) {
-            tagParams.namespace = CUSTOM_NAMESPACE;
-        }
-        var tagId = this.generateTagId(tagParams.namespace, tagParams.name);
-        console.log("Set tag... (tagId: " + tagId + ", value: " + tagParams.value + ")");
-        var existingClientTag = ClientTag.load(tagId);
-        if (existingClientTag != null) {
-            if (existingClientTag.getValue() === tagParams.value) {
-                console.log("Tag exists with the same value. (tagId: " + tagId + ", value: " + tagParams.value + ")");
-                return;
-            }
-            console.log("Tag exists with the other value. (tagId: " + tagId + ", value: " + tagParams.value + ")");
-        }
-        var client = GrowthbeatCore.getInstance().getClient();
-        var clientTag = ClientTag.create(client.getId(), tagId, tagParams.value, this.credentialId);
-        clientTag.on('created', function () {
-            // FIXME clientTag Save
-            ClientTag.save(clientTag);
-            console.log("Setting tag success. (tagId: " + tagId + ")");
-        });
-        clientTag.on('error', function () {
-            // FIXME errorMessage.
-            console.log("Setting tag fail.");
-        });
-    };
-    GrowthAnalytics.prototype.generateEventId = function (namespace, name) {
-        return "Event:" + this.applicationId + ":" + namespace + ":" + name;
-    };
-    GrowthAnalytics.prototype.generateTagId = function (namespace, name) {
-        return "Tag:" + this.applicationId + ":" + namespace + ":" + name;
-    };
-    GrowthAnalytics.prototype.open = function () {
-        this.openDate = new Date();
-        this.track({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Open',
-            option: 1 /* COUNTER */
-        });
-        this.track({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Install',
-            option: 0 /* ONCE */
-        });
-    };
-    GrowthAnalytics.prototype.close = function () {
-        if (!this.openDate)
+        processedProperties['counter'] = counter++;
+    }
+    var client = GrowthbeatCore.getClient();
+    var clientEvent = ClientEvent.create(client.getId(), eventId, trackParams.properties, _credentialId);
+    clientEvent.on('created', function () {
+        ClientEvent.save(clientEvent);
+        console.log("Tracking event success. (eventId: " + eventId + ", properties: " + processedProperties + ")");
+    });
+    clientEvent.on('error', function () {
+        // FIXME errorMessage.
+        console.log("Tracking event fail.");
+    });
+}
+exports.track = track;
+function tag(tagParams) {
+    if (tagParams.namespace == null) {
+        tagParams.namespace = CUSTOM_NAMESPACE;
+    }
+    var tagId = _generateTagId(tagParams.namespace, tagParams.name);
+    console.log("Set tag... (tagId: " + tagId + ", value: " + tagParams.value + ")");
+    var existingClientTag = ClientTag.load(tagId);
+    if (existingClientTag != null) {
+        if (existingClientTag.getValue() === tagParams.value) {
+            console.log("Tag exists with the same value. (tagId: " + tagId + ", value: " + tagParams.value + ")");
             return;
-        var time = (new Date().getTime() - this.openDate.getTime()) / 1000;
-        this.openDate = null;
-        var properties = {
-            time: "" + time
-        };
-        this.track({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Close',
-            properties: properties
-        });
+        }
+        console.log("Tag exists with the other value. (tagId: " + tagId + ", value: " + tagParams.value + ")");
+    }
+    var client = GrowthbeatCore.getClient();
+    var clientTag = ClientTag.create(client.getId(), tagId, tagParams.value, _credentialId);
+    clientTag.on('created', function () {
+        // FIXME clientTag Save
+        ClientTag.save(clientTag);
+        console.log("Setting tag success. (tagId: " + tagId + ")");
+    });
+    clientTag.on('error', function () {
+        // FIXME errorMessage.
+        console.log("Setting tag fail.");
+    });
+}
+exports.tag = tag;
+function open() {
+    _openDate = new Date();
+    track({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Open',
+        option: 1 /* COUNTER */
+    });
+    track({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Install',
+        option: 0 /* ONCE */
+    });
+}
+exports.open = open;
+function close() {
+    if (!_openDate)
+        return;
+    var time = (new Date().getTime() - _openDate.getTime()) / 1000;
+    _openDate = null;
+    var properties = {
+        time: "" + time
     };
-    GrowthAnalytics.prototype.purchase = function (price, category, product) {
-        var properties = {
-            price: "" + price,
-            category: category,
-            product: product
-        };
-        this.track({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Purchase',
-            properties: properties
-        });
+    track({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Close',
+        properties: properties
+    });
+}
+exports.close = close;
+function purchase(price, category, product) {
+    var properties = {
+        price: "" + price,
+        category: category,
+        product: product
     };
-    GrowthAnalytics.prototype.setUuid = function () {
-        var uuid = GrowthbeatCore.getInstance().getCUuid();
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'UUID',
-            value: uuid.getUuid()
-        });
-    };
-    GrowthAnalytics.prototype.setUserId = function (userId) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'UserID',
-            value: userId
-        });
-    };
-    GrowthAnalytics.prototype.setName = function (name) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Name',
-            value: name
-        });
-    };
-    GrowthAnalytics.prototype.setAge = function (age) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Age',
-            value: "" + age
-        });
-    };
-    GrowthAnalytics.prototype.setGender = function (gender) {
-        if (gender !== GrowthAnalytics.Gender.MALE && gender !== GrowthAnalytics.Gender.FEMALE)
-            return;
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Gender',
-            value: gender,
-        });
-    };
-    GrowthAnalytics.prototype.setLevel = function (level) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Level',
-            value: "" + level
-        });
-    };
-    GrowthAnalytics.prototype.setDevelopment = function (development) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Development',
-            value: "" + development
-        });
-    };
-    GrowthAnalytics.prototype.setUserAgent = function () {
-        if (!window.navigator.userAgent)
-            return;
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'UserAgent',
-            value: window.navigator.userAgent
-        });
-    };
-    GrowthAnalytics.prototype.setLanguage = function () {
-        if (!window.navigator.language)
-            return;
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Language',
-            value: window.navigator.language
-        });
-    };
-    GrowthAnalytics.prototype.setRandom = function () {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'Random',
-            value: "" + Math.random()
-        });
-    };
-    GrowthAnalytics.prototype.setAdvertisingId = function (adverTisingId) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'AdvertisingID',
-            value: adverTisingId
-        });
-    };
-    GrowthAnalytics.prototype.setTrackingEnabled = function (enabled) {
-        this.tag({
-            namespace: DEFAULT_NAMESPACE,
-            name: 'TrackingEnabled',
-            value: "" + enabled
-        });
-    };
-    GrowthAnalytics.prototype.setBasicTags = function () {
-        this.setUserAgent();
-        this.setLanguage();
-    };
-    GrowthAnalytics.prototype.getEmitter = function () {
-        return this.emitter;
-    };
-    GrowthAnalytics.Gender = {
-        MALE: 'male',
-        FEMALE: 'female'
-    };
-    GrowthAnalytics._instance = null;
-    return GrowthAnalytics;
-})();
-module.exports = GrowthAnalytics;
+    track({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Purchase',
+        properties: properties
+    });
+}
+exports.purchase = purchase;
+function setUuid() {
+    var uuid = GrowthbeatCore.getCUuid();
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'UUID',
+        value: uuid.getUuid()
+    });
+}
+exports.setUuid = setUuid;
+function setUserId(userId) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'UserID',
+        value: userId
+    });
+}
+exports.setUserId = setUserId;
+function setName(name) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Name',
+        value: name
+    });
+}
+exports.setName = setName;
+function setAge(age) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Age',
+        value: "" + age
+    });
+}
+exports.setAge = setAge;
+function setGender(gender) {
+    if (gender !== exports.Gender.MALE && gender !== exports.Gender.FEMALE)
+        return;
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Gender',
+        value: gender,
+    });
+}
+exports.setGender = setGender;
+function setLevel(level) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Level',
+        value: "" + level
+    });
+}
+exports.setLevel = setLevel;
+function setDevelopment(development) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Development',
+        value: "" + development
+    });
+}
+exports.setDevelopment = setDevelopment;
+function setUserAgent() {
+    if (!window.navigator.userAgent)
+        return;
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'UserAgent',
+        value: window.navigator.userAgent
+    });
+}
+exports.setUserAgent = setUserAgent;
+function setLanguage() {
+    if (!window.navigator.language)
+        return;
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Language',
+        value: window.navigator.language
+    });
+}
+exports.setLanguage = setLanguage;
+function setRandom() {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'Random',
+        value: "" + Math.random()
+    });
+}
+exports.setRandom = setRandom;
+function setAdvertisingId(adverTisingId) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'AdvertisingID',
+        value: adverTisingId
+    });
+}
+exports.setAdvertisingId = setAdvertisingId;
+function setTrackingEnabled(enabled) {
+    tag({
+        namespace: DEFAULT_NAMESPACE,
+        name: 'TrackingEnabled',
+        value: "" + enabled
+    });
+}
+exports.setTrackingEnabled = setTrackingEnabled;
+function setBasicTags() {
+    setUserAgent();
+    setLanguage();
+}
+exports.setBasicTags = setBasicTags;
+function getEmitter() {
+    return _emitter;
+}
+exports.getEmitter = getEmitter;
 
 },{"../growthbeat-core/index":5,"./model/client-event":2,"./model/client-tag":3,"component-emitter":11}],2:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
@@ -519,67 +522,51 @@ module.exports = HttpClient;
 },{"nanoajax":12}],5:[function(require,module,exports){
 var Client = require('./model/client');
 var Uuid = require('./model/uuid');
-var GrowthbeatCore = (function () {
-    function GrowthbeatCore() {
-        this.client = null;
-        this.uuid = null;
-        this._initialized = false;
-        if (GrowthbeatCore._instance) {
-            throw new Error('must use the getInstance');
-        }
-        GrowthbeatCore._instance = this;
+var _initialized = false;
+var _client = null;
+var _uuid = null;
+var _createClient = function (applicationId, credentialId, uuid, callback) {
+    var client = Client.load();
+    if (client != null && client.getApplication().getId() == applicationId) {
+        _client = client;
+        callback();
+        return;
     }
-    GrowthbeatCore.getInstance = function () {
-        if (GrowthbeatCore._instance === null) {
-            GrowthbeatCore._instance = new GrowthbeatCore();
-        }
-        return GrowthbeatCore._instance;
-    };
-    GrowthbeatCore.prototype.initialize = function (applicationId, credentialId, callback) {
-        var _this = this;
-        if (this._initialized) {
-            callback();
-            return;
-        }
-        var uuid = Uuid.create(credentialId);
-        uuid.on('created', function () {
-            _this.uuid = uuid;
-            Uuid.save(uuid);
-            _this.createClient(applicationId, credentialId, uuid.getUuid(), callback);
-        });
-        uuid.on('error', function () {
-            callback({}); //FIXME: create error
-        });
-    };
-    GrowthbeatCore.prototype.createClient = function (applicationId, credentialId, uuid, callback) {
-        var _this = this;
-        var client = Client.load();
-        if (client != null && client.getApplication().getId() == applicationId) {
-            this.client = client;
-            callback();
-            return;
-        }
-        client = Client.create(applicationId, credentialId);
-        client.on('created', function () {
-            Client.save(client);
-            console.log('initialized: GrowthbeatCore');
-            _this._initialized = true;
-            callback();
-        });
-        client.on('error', function () {
-            callback({}); // FIXME: create error
-        });
-    };
-    GrowthbeatCore.prototype.getClient = function () {
-        return this.client;
-    };
-    GrowthbeatCore.prototype.getCUuid = function () {
-        return this.uuid;
-    };
-    GrowthbeatCore._instance = null;
-    return GrowthbeatCore;
-})();
-module.exports = GrowthbeatCore;
+    client = Client.create(applicationId, credentialId);
+    client.on('created', function () {
+        Client.save(client);
+        console.log('initialized: GrowthbeatCore');
+        _initialized = true;
+        callback();
+    });
+    client.on('error', function () {
+        callback({}); // FIXME: create error
+    });
+};
+function init(applicationId, credentialId, callback) {
+    if (_initialized) {
+        callback();
+        return;
+    }
+    var uuid = Uuid.create(credentialId);
+    uuid.on('created', function () {
+        _uuid = uuid;
+        Uuid.save(uuid);
+        _createClient(applicationId, credentialId, uuid.getUuid(), callback);
+    });
+    uuid.on('error', function () {
+        callback({}); //FIXME: create error
+    });
+}
+exports.init = init;
+function getClient() {
+    return _client;
+}
+exports.getClient = getClient;
+function getCUuid() {
+    return _uuid;
+}
+exports.getCUuid = getCUuid;
 
 },{"./model/client":7,"./model/uuid":8}],6:[function(require,module,exports){
 var Application = (function () {
@@ -739,48 +726,34 @@ module.exports = Uuid;
 },{"../http/http-client":4,"component-emitter":11}],9:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthAnalytics = require('../growthanalytics/index');
-//import GrowthMessage = require('../growthmessage/index');
-var Growthbeat = (function () {
-    function Growthbeat() {
-        this._initialized = false;
-        if (Growthbeat._instance) {
-            throw new Error('must use the getInstance');
-        }
-        Growthbeat._instance = this;
-    }
-    Growthbeat.getInstance = function () {
-        if (Growthbeat._instance === null) {
-            Growthbeat._instance = new Growthbeat();
-        }
-        return Growthbeat._instance;
-    };
-    Growthbeat.prototype.initialize = function (applicationId, credentialId, callback) {
-        var _this = this;
-        if (this._initialized)
+var _initialized = false;
+function init(params, callback) {
+    if (_initialized)
+        return;
+    var applicationId = params.applicationId;
+    var credentialId = params.credentialId;
+    GrowthbeatCore.init(applicationId, credentialId, function (err) {
+        if (err) {
+            callback(err);
             return;
-        GrowthbeatCore.getInstance().initialize(applicationId, credentialId, function (err) {
-            if (err) {
-                callback(err);
-                return;
-            }
-            GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
-            //GrowthMessage.getInstance().initialize(applicationId, credentialId);
-            GrowthAnalytics.getInstance().setUuid();
-            console.log('initialized: Growthbeat');
-            _this._initialized = true;
-            callback();
-        });
-    };
-    Growthbeat.prototype.start = function () {
-        GrowthAnalytics.getInstance().open();
-    };
-    Growthbeat.prototype.stop = function () {
-        GrowthAnalytics.getInstance().close();
-    };
-    Growthbeat._instance = null;
-    return Growthbeat;
-})();
-module.exports = Growthbeat;
+        }
+        GrowthAnalytics.init(applicationId, credentialId);
+        //GrowthMessage.init(applicationId, credentialId);
+        GrowthAnalytics.setUuid();
+        console.log('initialized: Growthbeat');
+        _initialized = true;
+        callback();
+    });
+}
+exports.init = init;
+function start() {
+    GrowthAnalytics.open();
+}
+exports.start = start;
+function stop() {
+    GrowthAnalytics.close();
+}
+exports.stop = stop;
 
 },{"../growthanalytics/index":1,"../growthbeat-core/index":5}],10:[function(require,module,exports){
 (function (global){
