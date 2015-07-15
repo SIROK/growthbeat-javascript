@@ -763,7 +763,6 @@ var Growthbeat = (function () {
                 callback(err);
                 return;
             }
-            ;
             GrowthAnalytics.getInstance().initialize(applicationId, credentialId);
             //GrowthMessage.getInstance().initialize(applicationId, credentialId);
             GrowthAnalytics.getInstance().setUuid();
