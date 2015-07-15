@@ -254,11 +254,11 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
+var HttpClient = require('../../growthbeat-core/http/http-client');
 var Emitter = require('component-emitter');
 var HTTP_CLIENT_BASE_URL = 'https://analytics.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 var ClientEvent = (function (_super) {
     __extends(ClientEvent, _super);
     function ClientEvent(data) {
@@ -336,18 +336,18 @@ var ClientEvent = (function (_super) {
 })(Emitter);
 module.exports = ClientEvent;
 
-},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":11}],3:[function(require,module,exports){
+},{"../../growthbeat-core/http/http-client":4,"component-emitter":11}],3:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
+var HttpClient = require('../../growthbeat-core/http/http-client');
 var Emitter = require('component-emitter');
 var HTTP_CLIENT_BASE_URL = 'https://analytics.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 var ClientTag = (function (_super) {
     __extends(ClientTag, _super);
     function ClientTag(data) {
@@ -426,27 +426,27 @@ var ClientTag = (function (_super) {
 })(Emitter);
 module.exports = ClientTag;
 
-},{"../../growthbeat-core/http/growthbeat-http-client":4,"component-emitter":11}],4:[function(require,module,exports){
+},{"../../growthbeat-core/http/http-client":4,"component-emitter":11}],4:[function(require,module,exports){
 var nanoajax = require('nanoajax');
-var GrowthbeatHttpClient = (function () {
-    function GrowthbeatHttpClient(baseUrl, timeout) {
+var HttpClient = (function () {
+    function HttpClient(baseUrl, timeout) {
         if (timeout === void 0) { timeout = 0; }
         this.baseUrl = baseUrl;
         this.timeout = timeout;
     }
-    GrowthbeatHttpClient.prototype.get = function (api, options, success, error) {
+    HttpClient.prototype.get = function (api, options, success, error) {
         return this._request('GET', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.post = function (api, options, success, error) {
+    HttpClient.prototype.post = function (api, options, success, error) {
         return this._request('POST', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.put = function (api, options, success, error) {
+    HttpClient.prototype.put = function (api, options, success, error) {
         return this._request('PUT', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype.delete = function (api, options, success, error) {
+    HttpClient.prototype.delete = function (api, options, success, error) {
         return this._request('DELETE', api, options, success, error);
     };
-    GrowthbeatHttpClient.prototype._request = function (method, api, options, success, error) {
+    HttpClient.prototype._request = function (method, api, options, success, error) {
         if (options.dataType === 'jsonp') {
             this._requestByJsonp('GET', api, options, success, error);
         }
@@ -454,7 +454,7 @@ var GrowthbeatHttpClient = (function () {
             this._requestByXhr(method, api, options, success, error);
         }
     };
-    GrowthbeatHttpClient.prototype._requestByJsonp = function (method, api, options, success, error) {
+    HttpClient.prototype._requestByJsonp = function (method, api, options, success, error) {
         var params = this._makeParamsArray(options.params);
         var jsonpCallbackName = 'growthbeat' + Math.random().toString(36).slice(-8);
         ;
@@ -473,7 +473,7 @@ var GrowthbeatHttpClient = (function () {
         };
         document.body.appendChild(script);
     };
-    GrowthbeatHttpClient.prototype._requestByXhr = function (method, api, options, success, error) {
+    HttpClient.prototype._requestByXhr = function (method, api, options, success, error) {
         var params = this._makeParamsArray(options.params);
         var nanoParams = {
             method: method,
@@ -498,7 +498,7 @@ var GrowthbeatHttpClient = (function () {
             }
         });
     };
-    GrowthbeatHttpClient.prototype._makeParamsArray = function (obj) {
+    HttpClient.prototype._makeParamsArray = function (obj) {
         var paramsObj = (obj == null) ? {} : obj;
         var params = Object.keys(paramsObj).map(function (key) {
             var val = '';
@@ -512,9 +512,9 @@ var GrowthbeatHttpClient = (function () {
         });
         return params;
     };
-    return GrowthbeatHttpClient;
+    return HttpClient;
 })();
-module.exports = GrowthbeatHttpClient;
+module.exports = HttpClient;
 
 },{"nanoajax":12}],5:[function(require,module,exports){
 var Client = require('./model/client');
@@ -621,12 +621,12 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var GrowthbeatHttpClient = require('../http/growthbeat-http-client');
+var HttpClient = require('../http/http-client');
 var Emitter = require('component-emitter');
 var Application = require('./application');
 var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 var Client = (function (_super) {
     __extends(Client, _super);
     function Client(data) {
@@ -683,18 +683,18 @@ var Client = (function (_super) {
 })(Emitter);
 module.exports = Client;
 
-},{"../http/growthbeat-http-client":4,"./application":6,"component-emitter":11}],8:[function(require,module,exports){
+},{"../http/http-client":4,"./application":6,"component-emitter":11}],8:[function(require,module,exports){
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-var GrowthbeatHttpClient = require('../http/growthbeat-http-client');
+var HttpClient = require('../http/http-client');
 var Emitter = require('component-emitter');
 var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 var Uuid = (function (_super) {
     __extends(Uuid, _super);
     function Uuid(data) {
@@ -745,7 +745,7 @@ var Uuid = (function (_super) {
 })(Emitter);
 module.exports = Uuid;
 
-},{"../http/growthbeat-http-client":4,"component-emitter":11}],9:[function(require,module,exports){
+},{"../http/http-client":4,"component-emitter":11}],9:[function(require,module,exports){
 var GrowthbeatCore = require('../growthbeat-core/index');
 var GrowthAnalytics = require('../growthanalytics/index');
 //import GrowthMessage = require('../growthmessage/index');

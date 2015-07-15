@@ -6,7 +6,7 @@ interface Options {
     cors?:boolean;
 }
 
-class GrowthbeatHttpClient {
+class HttpClient {
     constructor(private baseUrl:string, private timeout:number = 0) {
 
     }
@@ -103,4 +103,4 @@ class GrowthbeatHttpClient {
     }
 }
 
-export = GrowthbeatHttpClient;
+export = HttpClient;

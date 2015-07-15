@@ -1,11 +1,11 @@
-import GrowthbeatHttpClient = require('../http/growthbeat-http-client');
+import HttpClient = require('../http/http-client');
 import Emitter = require('component-emitter');
 import Application = require('./application');
 
 var HTTP_CLIENT_BASE_URL = 'http://gbt.io/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
 class Client extends Emitter {
     private id:string;

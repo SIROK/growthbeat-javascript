@@ -1,10 +1,10 @@
-import GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
+import HttpClient = require('../../growthbeat-core/http/http-client');
 
 //var HTTP_CLIENT_BASE_URL = 'https://api.message.growthbeat.com/';
 var HTTP_CLIENT_BASE_URL = 'http://localhost:8000/';
 var HTTP_CLIENT_TIMEOUT = 10 * 1000;
 
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
 var deepExtract = (input:{}, name:string, output = []):string[] => {
     Object.keys(input).forEach((key)=> {

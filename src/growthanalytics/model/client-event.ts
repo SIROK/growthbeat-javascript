@@ -1,10 +1,10 @@
-import GrowthbeatHttpClient = require('../../growthbeat-core/http/growthbeat-http-client');
+import HttpClient = require('../../growthbeat-core/http/http-client');
 import Emitter = require('component-emitter');
 
 var HTTP_CLIENT_BASE_URL = 'https://analytics.growthbeat.com/';
 var HTTP_CLIENT_TIMEOUT = 60 * 1000;
 
-var httpClient = new GrowthbeatHttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
+var httpClient = new HttpClient(HTTP_CLIENT_BASE_URL, HTTP_CLIENT_TIMEOUT);
 
 interface Properties {key?:string
 }
