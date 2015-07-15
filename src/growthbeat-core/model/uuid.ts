@@ -24,7 +24,7 @@ class Uuid extends Emitter {
 
     static load():Uuid {
         if (!window.localStorage) return null;
-        var uuidData = window.localStorage.getItem('growthbeat:uuid');
+        var uuidData = window.localStorage.getItem('growthbeat.uuid');
         if (uuidData == null) return null;
         return new Uuid(JSON.parse(uuidData));
     }
@@ -34,7 +34,7 @@ class Uuid extends Emitter {
         var _data:Data = <Data>{
             uuid: data.uuid
         };
-        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(_data));
+        window.localStorage.setItem('growthbeat.uuid', JSON.stringify(_data));
     }
 
     static create(credentialId:string):Uuid {

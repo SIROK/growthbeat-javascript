@@ -277,7 +277,7 @@ var ClientEvent = (function (_super) {
     ClientEvent.load = function (eventId) {
         if (!window.localStorage)
             return null;
-        var clientEventData = window.localStorage.getItem("growthanalytics:" + eventId);
+        var clientEventData = window.localStorage.getItem("growthanalytics." + eventId);
         if (clientEventData == null)
             return null;
         return new ClientEvent(JSON.parse(clientEventData));
@@ -290,7 +290,7 @@ var ClientEvent = (function (_super) {
             eventId: data.eventId,
             properties: data.properties
         };
-        window.localStorage.setItem("growthanalytics:" + data.getEventId(), JSON.stringify(_data));
+        window.localStorage.setItem("growthanalytics." + data.getEventId(), JSON.stringify(_data));
     };
     ClientEvent.create = function (clientId, eventId, properties, credentialId) {
         var opt = {
@@ -362,7 +362,7 @@ var ClientTag = (function (_super) {
         if (!window.localStorage) {
             return null;
         }
-        var clientTagData = window.localStorage.getItem("growthanalytics:" + tagId);
+        var clientTagData = window.localStorage.getItem("growthanalytics." + tagId);
         if (clientTagData == null) {
             return null;
         }
@@ -376,7 +376,7 @@ var ClientTag = (function (_super) {
             tagId: data.tagId,
             value: data.value
         };
-        window.localStorage.setItem("growthanalytics:" + data.getTagId(), JSON.stringify(_data));
+        window.localStorage.setItem("growthanalytics." + data.getTagId(), JSON.stringify(_data));
     };
     ClientTag.create = function (clientId, tagId, value, credentialId) {
         var opt = {
@@ -587,7 +587,7 @@ var Client = (function (_super) {
     Client.load = function () {
         if (!window.localStorage)
             return null;
-        var clientData = window.localStorage.getItem('growthbeat:client');
+        var clientData = window.localStorage.getItem('growthbeat.client');
         if (clientData == null)
             return null;
         return new Client(JSON.parse(clientData));
@@ -603,7 +603,7 @@ var Client = (function (_super) {
             }
         };
         console.log("save client " + JSON.stringify(_data));
-        window.localStorage.setItem('growthbeat:client', JSON.stringify(_data));
+        window.localStorage.setItem('growthbeat.client', JSON.stringify(_data));
     };
     Client.create = function (applicationId, credentialId) {
         var opt = {
@@ -658,7 +658,7 @@ var Uuid = (function (_super) {
     Uuid.load = function () {
         if (!window.localStorage)
             return null;
-        var uuidData = window.localStorage.getItem('growthbeat:uuid');
+        var uuidData = window.localStorage.getItem('growthbeat.uuid');
         if (uuidData == null)
             return null;
         return new Uuid(JSON.parse(uuidData));
@@ -669,7 +669,7 @@ var Uuid = (function (_super) {
         var _data = {
             uuid: data.uuid
         };
-        window.localStorage.setItem('growthbeat:uuid', JSON.stringify(_data));
+        window.localStorage.setItem('growthbeat.uuid', JSON.stringify(_data));
     };
     Uuid.create = function (credentialId) {
         var opt = {

@@ -33,7 +33,7 @@ class ClientEvent extends Emitter {
 
     static load(eventId:string):ClientEvent {
         if (!window.localStorage) return null;
-        var clientEventData = window.localStorage.getItem(`growthanalytics:${eventId}`);
+        var clientEventData = window.localStorage.getItem(`growthanalytics.${eventId}`);
         if (clientEventData == null) return null;
         return new ClientEvent(JSON.parse(clientEventData));
     }
@@ -45,7 +45,7 @@ class ClientEvent extends Emitter {
             eventId: data.eventId,
             properties: data.properties
         };
-        window.localStorage.setItem(`growthanalytics:${data.getEventId()}`, JSON.stringify(_data));
+        window.localStorage.setItem(`growthanalytics.${data.getEventId()}`, JSON.stringify(_data));
     }
 
     static create(clientId:string, eventId:string, properties:Properties, credentialId:string):ClientEvent {

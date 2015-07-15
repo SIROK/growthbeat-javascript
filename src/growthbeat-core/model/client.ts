@@ -32,7 +32,7 @@ class Client extends Emitter {
 
     static load():Client {
         if (!window.localStorage) return null;
-        var clientData = window.localStorage.getItem('growthbeat:client');
+        var clientData = window.localStorage.getItem('growthbeat.client');
         if (clientData == null) return null;
         return new Client(JSON.parse(clientData));
     }
@@ -47,7 +47,7 @@ class Client extends Emitter {
             }
         };
         console.log(`save client ${JSON.stringify(_data)}`);
-        window.localStorage.setItem('growthbeat:client', JSON.stringify(_data));
+        window.localStorage.setItem('growthbeat.client', JSON.stringify(_data));
     }
 
     static create(applicationId:string, credentialId:string):Client {

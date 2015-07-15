@@ -34,7 +34,7 @@ class ClientTag extends Emitter {
             return null;
         }
 
-        var clientTagData = window.localStorage.getItem(`growthanalytics:${tagId}`);
+        var clientTagData = window.localStorage.getItem(`growthanalytics.${tagId}`);
         if (clientTagData == null) {
             return null;
         }
@@ -48,7 +48,7 @@ class ClientTag extends Emitter {
             tagId: data.tagId,
             value: data.value
         };
-        window.localStorage.setItem(`growthanalytics:${data.getTagId()}`, JSON.stringify(_data));
+        window.localStorage.setItem(`growthanalytics.${data.getTagId()}`, JSON.stringify(_data));
     }
 
     static create(clientId:string, tagId:string, value:string, credentialId:string):ClientTag {
